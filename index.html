@@ -228,7 +228,7 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getDatabase, ref, push, set, update, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-    // Firebase 원본 키 세팅 구성 완료
+    // Firebase 원본 구성 세팅
     const firebaseConfig = {
       apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
       authDomain: "bin20703-edda7.firebaseapp.com",
@@ -240,9 +240,8 @@
       measurementId: "G-C2VDTXTVZQ"
     };
 
-    // Google Apps Script 웹앱 URL 게이트웨이 매핑
-    const CHAT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxTmD_aKFktnu5BcmOj0x84D15A5qOEkAbpoyJ7DEGzJR7UayIGwKLDL7nFhU3hbB_wVw/exec';
-    const TTS_SEND_URL = 'https://script.google.com/macros/s/AKfycbzvCeCidpIBm3Ez_AbmzTRrvzCkPa_7x-irAazDPzljPmuqjjHZOqXxfyS1vNh7tX1/exec';
+    // 💡 새롭게 주신 공용 단일 Apps Script 웹앱 게이트웨이 주소로 완벽 결합
+    const INTEGRATED_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxVPslWgFHgQQA7VqdrsHTuXcgIC2FWVx2RU-pICfpdOwtiIApUfYDM5lBI6oJX9yJe/exec';
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -264,8 +263,10 @@
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.remove('hidden');
-      event.currentTarget.classList.add('active');
-      if(tabId === 'chatTab') audioPlayer.pause(); // 탭 이동 시 오디오 일시정지 처리
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+      }
+      if(tabId === 'chatTab') audioPlayer.pause(); // 탭 변경 시 오디오 정단 처리
     };
 
     // 빠른 명령어 시스템 매크로 인젝션
@@ -390,11 +391,14 @@
     window.injectPromptToSandbox = function(content) {
       questionInput.value = content;
       switchTab('chatTab');
-      document.querySelector('.tabs button:nth-child(2)').click();
+      const chatTabBtn = document.querySelector(".tabs button:nth-child(2)");
+      if (chatTabBtn) chatTabBtn.classList.add('active');
+      const memoTabBtn = document.querySelector(".tabs button:nth-child(1)");
+      if (memoTabBtn) memoTabBtn.classList.remove('active');
       questionInput.focus();
     };
 
-    /* 核心: AI 프롬프트 질의 및 결과 분석 엔진 + 자동 TTS 파이프라인 결합 */
+    /* 核心: AI 프롬프트 질의 엔진 + 통합 TTS 자동 파이프라인 결합 모듈 */
     askBtn.addEventListener('click', async () => {
       const question = questionInput.value.trim();
       if (!question) { alert('AI에게 전달할 명령 컨텍스트를 적어주세요.'); return; }
@@ -407,8 +411,11 @@
         answerBox.textContent = 'AI 멘토가 질문 내용을 정밀 코드 아키텍처 상에서 분석하고 있습니다...';
         chatStatus.textContent = 'OpenAI LLM 인프라 연결 중...';
 
-        // 1단계: Chat API 호출 (텍스트 답변 확보)
-        const res = await fetch(CHAT_GAS_URL, { method: 'POST', body: JSON.stringify({ question }) });
+        // 1단계: 통일된 단일 주소로 type: 'chat' 지정 요청 호출
+        const res = await fetch(INTEGRATED_APPS_SCRIPT_URL, { 
+          method: 'POST', 
+          body: JSON.stringify({ type: 'chat', question: question }) 
+        });
         const json = await res.json();
         if (json.error) throw new Error(json.error);
 
@@ -419,7 +426,7 @@
         chatStatus.textContent = '텍스트 답변 확보 완료.';
         saveToDbBtn.classList.remove('hidden'); 
 
-        // 2단계: 음성 재생 Switch 오작동 판별 후 파이프라인 연계 실행
+        // 2단계: 자동 읽어주기 체크 박스 활성화 시 TTS 연계 파이프라인 기동
         if (voiceToggle.checked && lastAiAnswer) {
           chatStatus.textContent = '답변 음성 컨버팅 알고리즘 동작 중...';
           await convertTextToSpeechStream(lastAiAnswer);
@@ -430,17 +437,17 @@
       } finally { askBtn.disabled = false; askBtn.textContent = 'AI 프롬프트 실행'; }
     });
 
-    // 텍스트 데이터를 받아 TTS 오디오 스트림으로 사운드 출력하는 가속기 내부 루틴
+    // 텍스트 소스를 전달받아 통합 웹앱 주소로 오디오 변환을 청하는 코어 엔진
     async function convertTextToSpeechStream(targetText) {
       const model = modelSelect.value;
       const voice = voiceSelect.value;
       const speed = Number(speedInput.value || 1.0);
 
-      // 오디오 생성을 위한 가독성 향상 전처리 (코드가 너무 길 경우 TTS 오류나 딜레이 방지를 위해 앞의 600자만 요약 낭독하도록 슬라이싱 조치)
+      // 성능 버퍼를 확보하기 위해 앞 단 600자만 잘라서 발음하도록 최적화 적용
       const sanitizedText = targetText.substring(0, 600);
 
       try {
-        const response = await fetch(TTS_SEND_URL, {
+        const response = await fetch(INTEGRATED_APPS_SCRIPT_URL, {
           method: 'POST',
           body: JSON.stringify({ type: 'tts', text: sanitizedText, model, voice, speed })
         });
@@ -448,7 +455,7 @@
         if (data.error) throw new Error(data.error);
         if (!data.audioBase64) throw new Error('음성 인코딩 원본을 확보하지 못했습니다.');
 
-        // Base64 데이터 블롭 전환 기술 스택 처리
+        // Base64 스트림 데이터 블롭 변환 루틴
         const b64 = atob(data.audioBase64); const bytes = [];
         for (let o = 0; o < b64.length; o += 512) {
           const slice = b64.slice(o, o + 512); const nums = new Array(slice.length);
@@ -457,7 +464,7 @@
         }
         const audioUrl = URL.createObjectURL(new Blob(bytes, { type: 'audio/mpeg' }));
         
-        // 오디오 제어 보드 바인딩 및 즉시 로드/재생
+        // 데이터 바이딩 처리 및 플레이백 실행
         audioPlayer.src = audioUrl;
         downloadLink.href = audioUrl;
         downloadLink.download = `ai-response-${new Date().toISOString().slice(2,10).replace(/-/g,'')}.mp3`;
@@ -471,7 +478,7 @@
       }
     }
 
-    // AI 답변 클라우드 백업 이관 유닛 (융합 보강)
+    // 데이터 아카이브 보관 유닛
     window.saveAiResponseToDatabase = async function() {
       if (!currentUser || !lastAiAnswer) return;
       try {
@@ -492,7 +499,7 @@
       saveToDbBtn.classList.add('hidden'); audioWrapper.classList.add('hidden'); audioPlayer.removeAttribute('src');
     });
 
-    // 유틸리티 문자열 치환 가드
+    // 방어용 이스케이프 가드 문자열 컨버터
     function escapeHTML(t) { return String(t).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;'); }
     function escapeForAttribute(t) { return escapeHTML(t).replaceAll('`', '&#096;'); }
     function parseErrorMsg(c) {
@@ -502,7 +509,7 @@
       return `시스템 인증 에러 코드: ${c}`;
     }
 
-    // 전역 단축키 단도리
+    // 전역 단축키 핸들러
     document.addEventListener('keydown', (e) => {
       const actId = document.activeElement.id;
       if (e.key === 'Enter') {
