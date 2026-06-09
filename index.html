@@ -269,7 +269,7 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // 2. 구글 앱 스크립트 웹앱 배포 URL 바인딩 (본인 배포 주소로 변경 필수)
+    // 2. 구글 앱 스크립트 웹앱 배포 URL 바인딩 완료
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_tPPZxFNsHwm5Rp8L-UMvUE_yojf4i96dTH-Ho6s3SNojNB31ye8SVmirP9uootOd/exec";
 
     // 글로벌 환경 상태 변수
@@ -308,6 +308,7 @@
     const globalAudioPlayer = document.getElementById('globalAudioPlayer');
 
     // ==========================================
+    // AUTH 실시간 회원 상태 변화 감지 리스너
     // ==========================================
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -364,6 +365,7 @@
     });
 
     // ==========================================
+    // Realtime Database CRUD 오답노트 보관 처리
     // ==========================================
     btnSaveNote.addEventListener('click', () => {
       if(!currentUser) return;
@@ -458,7 +460,6 @@
         if(!item) return;
 
         const langLabel = getLangLabelText(item.lang);
-        // LLM에 전달할 최적화 컨텍스트 문장 조합 생성
         chatQuestion.value = `[카테고리: ${langLabel}] 내가 작성한 아래 기록에 대해 에러 디버깅, 최적화 팁 또는 개선된 프롬프트 양식을 피드백해줘.\n\n제목: ${item.title}\n내용:\n${item.content}`;
         
         switchTab('chatTab'); // 챗봇 탭으로 강제 포커스 이동
@@ -467,13 +468,14 @@
     }
 
     // ==========================================
+    // AI 챗봇 + TTS 음성 결합 융합 시스템 (버그 패치 완)
     // ==========================================
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const question = chatQuestion.value.trim();
       if(!question) return;
 
-      if(APPS_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEBAPP_URL") {
+      if(APPS_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEBAPP_URL" || APPS_SCRIPT_URL === "") {
         alert('구글 앱 스크립트 배포 주소(APPS_SCRIPT_URL)를 코드 상단에 정확히 기입해 주세요.');
         return;
       }
@@ -481,7 +483,7 @@
       // 화면 유저 입력 노출 렌더링
       appendMessage('USER', question);
       chatQuestion.value = '';
-      setChatLoading(true);
+      setChatLoading(true); // 버튼 비활성화 및 로딩 UI 진입
 
       try {
         // [1단계] 구글 앱 스크립트를 경유하여 ChatGPT 대화 수행 요청
@@ -498,7 +500,6 @@
 
         // [2단계] TTS 토글 기능이 ON 상태인 경우 자동 유기적 TTS 통신 수행
         if (ttsToggle.checked) {
-          // 마크다운 및 태그 기호 제거하여 읽기 적합한 플레인 텍스트 필터링
           const cleanText = aiAnswer.replace(/[*#`_\-]/g, '').substring(0, 400); 
           
           const ttsResponse = await fetch(APPS_SCRIPT_URL, {
@@ -514,7 +515,6 @@
 
           if (ttsResult.error) throw new Error(ttsResult.error);
 
-          // Base64 사운드 데이터 바이너리 오디오 객체 전환 및 재생 실행
           if (ttsResult.audioBase64) {
             const audioSrc = "data:audio/mp3;base64," + ttsResult.audioBase64;
             globalAudioPlayer.src = audioSrc;
@@ -526,7 +526,7 @@
       } catch (err) {
         appendMessage('ERROR', '시스템 처리 중 예외 발생: ' + err.toString());
       } finally {
-        setChatLoading(false);
+        setChatLoading(false); // ★핵심 패치: 정상 완료되든 에러가 나든 버튼 잠금을 무조건 해제
       }
     });
 
@@ -555,7 +555,7 @@
       chatStream.scrollTop = chatStream.scrollHeight; // 스크롤 바닥 고정
     }
 
-    // UI 로딩 디스플레이 인터랙션
+    // UI 로딩 디스플레이 인터랙션 제어 함수
     function setChatLoading(isLoading) {
       if(isLoading) {
         btnChatSubmit.disabled = true;
@@ -576,6 +576,7 @@
     }
 
     // ==========================================
+    // 공통 탭 스위칭 및 유틸리티 헬퍼 셋
     // ==========================================
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
