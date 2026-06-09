@@ -1,316 +1,259 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Firebase & OpenAI 통합 대시보드</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevPrompt Lab - 개발자 오답노트 & AI 프롬프트 실험실</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #e3f2fd, #fce4ec);
-      font-family: Arial, sans-serif;
-      color: #333;
-    }
-
-    /* 상단 통합 내비게이션 탭 스태킹 */
-    .nav-tabs {
-      display: flex;
-      justify-content: center;
-      background: #ffffff;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      padding: 0 10px;
-    }
-
-    .tab-btn {
-      border: none;
-      background: none;
-      padding: 16px 24px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #666;
-      cursor: pointer;
-      transition: 0.2s;
-      border-bottom: 4px solid transparent;
-    }
-
-    .tab-btn:hover {
-      color: #42a5f5;
-    }
-
-    .tab-btn.active {
-      color: #42a5f5;
-      border-bottom: 4px solid #42a5f5;
-    }
-
-    /* 메인 컨테이너 구조화 */
-    .container {
-      width: min(900px, 92%);
-      margin: 30px auto;
-      background: #ffffff;
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.16);
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      text-align: center;
-      font-size: 28px;
-    }
-
-    h2 {
-      margin-top: 0;
-      font-size: 22px;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #777;
-      margin-bottom: 24px;
-      font-size: 14px;
-    }
-
-    .info {
-      padding: 14px;
-      margin-bottom: 20px;
-      border-radius: 14px;
-      background: #e8f5e9;
-      color: #2e7d32;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    /* 공통 폼 및 입력 엘리먼트 정의 */
-    input, select, textarea {
-      padding: 12px 14px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      font-size: 15px;
-      outline: none;
-      width: 100%;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: #42a5f5;
-      box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.15);
-    }
-
-    textarea {
-      min-height: 140px;
-      resize: vertical;
-      font-family: Arial, sans-serif;
-      line-height: 1.5;
-    }
-
-    .label {
-      font-weight: bold;
-      margin-bottom: 6px;
-      margin-top: 10px;
-    }
-
-    /* 버튼 가이드라인 및 인터랙션 디자인 */
-    button, .download-link {
-      border: none;
-      border-radius: 12px;
-      padding: 0 18px;
-      height: 46px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.15s;
-      font-weight: bold;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    button:hover, .download-link:hover {
-      transform: translateY(-2px);
-      opacity: 0.9;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.6;
-      transform: none;
-    }
-
-    .button-row {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-
-    /* 개별 기능용 고유 컬러 명세 */
-    .login-btn, .ask-btn, .make-btn, .add-btn { background: #42a5f5; color: white; }
-    .signup-btn { background: #7e57c2; color: white; }
-    .logout-btn { background: #455a64; color: white; }
-    .refresh-btn { background: #66bb6a; color: white; margin-bottom: 16px; }
-    .clear-btn, .cancel-btn { background: #b0bec5; color: white; }
-    .edit-btn { background: #ffca28; color: #333; }
-    .delete-btn { background: #ef5350; color: white; }
-    .save-btn { background: #7e57c2; color: white; }
-    .download-link { background: #7e57c2; color: white; }
-
-    /* 모듈별 전용 스타일 그룹화 */
-    .auth-box { max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-    .form-box { display: grid; grid-template-columns: 1fr 2fr auto; gap: 10px; margin-bottom: 22px; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 22px; padding: 14px; border-radius: 16px; background: #f7f9fb; }
-    .user-info { font-size: 14px; color: #555; word-break: break-all; }
-    .status { min-height: 24px; margin-top: 10px; margin-bottom: 10px; color: #555; font-size: 14px; }
-    .list { display: flex; flex-direction: column; gap: 12px; }
-    .item { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 16px; border-radius: 16px; background: #f7f9fb; border: 1px solid #edf1f5; }
-    .item-title { margin: 0 0 6px; font-size: 18px; font-weight: bold; }
-    .item-content { margin: 0; color: #555; line-height: 1.5; word-break: break-all; }
-    .item-date { margin-top: 8px; font-size: 12px; color: #999; }
-    .item-actions { display: flex; gap: 8px; }
-    .edit-box { display: grid; grid-template-columns: 1fr 2fr auto auto; gap: 8px; width: 100%; }
-    .empty { text-align: center; padding: 30px; color: #888; background: #f7f9fb; border-radius: 16px; }
-    .notice, .help { padding: 14px; border-radius: 14px; font-size: 13px; line-height: 1.6; margin-top: 14px; }
-    .notice { background: #fff8e1; color: #6d4c41; }
-    .help { color: #777; }
-    .option-box { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .answer-box, .result-box { min-height: 120px; padding: 18px; border-radius: 18px; background: #f7f9fb; border: 1px solid #edf1f5; line-height: 1.7; }
-    .answer-box { white-space: pre-wrap; word-break: break-word; }
-    audio { width: 100%; margin-top: 10px; }
-
-    /* 레이아웃 제어 플래그 */
-    .hidden { display: none !important; }
-
-    /* 반응형 레이아웃 오버라이딩 */
-    @media (max-width: 700px) {
-      .form-box, .item, .edit-box, .top-bar, .option-box, .button-row { grid-template-columns: 1fr; flex-direction: column; align-items: stretch; }
-      .item-actions, .button-row { justify-content: stretch; }
-      button, .download-link { width: 100%; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .nav-tab.active {
+      border-color: #3b82f6;
+      color: #3b82f6;
+      border-bottom-width: 2px;
     }
   </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-  <nav class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('firebaseSection')">Firebase 데이터 관리</button>
-    <button class="tab-btn" onclick="switchTab('chatSection')">ChatGPT 질문 답변</button>
-    <button class="tab-btn" onclick="switchTab('ttsSection')">AI TTS 음성 변환기</button>
-  </nav>
-
-  <div id="firebaseSection" class="container tab-content">
-    <h1>Firebase 로그인 데이터 관리</h1>
-    <div class="subtitle">Firebase Authentication + Realtime Database 연동</div>
-
-    <section id="authSection">
-      <div class="auth-box">
-        <h2>로그인 / 회원가입</h2>
-        <input id="emailInput" type="email" placeholder="이메일" style="margin-bottom:4px;" />
-        <input id="passwordInput" type="password" placeholder="비밀번호 6자리 이상" style="margin-bottom:4px;" />
-        <button class="login-btn" id="loginBtn">로그인</button>
-        <button class="signup-btn" id="signupBtn">회원가입</button>
+  <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-blue-600 text-white p-2 rounded-lg shadow-md">
+          <i class="fa-solid fa-code-branch text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-gray-900 tracking-tight">DevPrompt Lab</h1>
+          <p class="text-xs text-gray-500">에러 오답노트 & 프롬프트 엔지니어링 아카이브</p>
+        </div>
       </div>
-      <div class="notice">
-        처음 사용하는 이메일은 회원가입을 먼저 누르세요.<br />
-        이미 가입한 이메일은 로그인 버튼을 누르면 됩니다.
+      
+      <div id="userInfo" class="hidden flex items-center space-x-4">
+        <span id="userDisplayEmail" class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full"></span>
+        <button id="btnLogout" class="text-sm text-red-600 hover:text-red-700 font-semibold transition flex items-center space-x-1">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>로그아웃</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <section id="authSection" class="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 border border-gray-100 my-12">
+      <div class="text-center mb-8">
+        <h2 id="authTitle" class="text-2xl font-bold text-gray-900">반갑습니다 👋</h2>
+        <p id="authSubtitle" class="text-sm text-gray-500 mt-2">DevPrompt Lab 서비스를 시작하려면 로그인하세요.</p>
+      </div>
+
+      <form id="authForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">이메일 주소</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <i class="fa-regular fa-envelope"></i>
+            </span>
+            <input type="email" id="authEmail" required class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="name@company.com">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">비밀번호</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+            <input type="password" id="authPassword" required class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="••••••••">
+          </div>
+        </div>
+
+        <button type="submit" id="btnAuthSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition transform active:scale-[0.98] mt-2">
+          로그인
+        </button>
+      </form>
+
+      <div class="text-center mt-6 pt-6 border-t border-gray-100">
+        <button id="btnToggleAuth" class="text-sm text-blue-600 hover:underline font-medium">
+          계정이 없으신가요? 회원가입하기
+        </button>
       </div>
     </section>
 
-    <section id="mainSection" class="hidden">
-      <div class="top-bar">
-        <div class="user-info">로그인 계정: <strong id="userEmail"></strong></div>
-        <button class="logout-btn" id="logoutBtn">로그아웃</button>
+    <section id="mainAppSection" class="hidden space-y-6">
+      
+      <div class="border-b border-gray-200">
+        <nav class="flex space-x-8" aria-label="Tabs">
+          <button onclick="switchTab('noteTab')" id="tabBtn-noteTab" class="nav-tab active pb-4 px-1 text-sm font-medium border-b-2 border-transparent transition cursor-pointer flex items-center space-x-2">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>오답노트 & 템플릿 아카이브</span>
+          </button>
+          <button onclick="switchTab('chatTab')" id="tabBtn-chatTab" class="nav-tab pb-4 px-1 text-sm font-medium border-b-2 border-transparent transition cursor-pointer flex items-center space-x-2">
+            <i class="fa-solid fa-robot"></i>
+            <span>AI 코드 리뷰 & 프롬프트 실험실</span>
+          </button>
+        </nav>
       </div>
-      <div class="form-box">
-        <input id="titleInput" type="text" placeholder="제목 입력" />
-        <input id="contentInput" type="text" placeholder="내용 입력" />
-        <button class="add-btn" id="addBtn">추가</button>
+
+      <div id="noteTab" class="tab-content active grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit space-y-4">
+          <div class="border-b border-gray-100 pb-3">
+            <h3 class="text-lg font-bold text-gray-900 flex items-center space-x-2">
+              <i class="fa-solid fa-pen-to-square text-blue-500"></i>
+              <span>로그 기록 및 설계</span>
+            </h3>
+          </div>
+          
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">카테고리 / 언어 선택</label>
+            <select id="noteLang" class="w-full border border-gray-300 rounded-lg p-2 bg-gray-50 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+              <option value="javascript">JavaScript / TypeScript</option>
+              <option value="python">Python</option>
+              <option value="c_cpp">C / C++</option>
+              <option value="java">Java</option>
+              <option value="prompt">Prompt Template (프롬프트)</option>
+              <option value="etc">기타 (CS / 에러로그)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">제목 (에러명 또는 프롬프트명)</label>
+            <input type="text" id="noteTitle" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="예: TypeError: Cannot read properties / SQL 인젝션 방어 가이드">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">내용 (트러블슈팅 또는 명령어 스크립트)</label>
+            <textarea id="noteContent" rows="6" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none font-mono" placeholder="에러 원인, 해결 코드 스니펫 혹은 검증에 사용할 AI 프롬프트 문장을 상세하게 기록하세요."></textarea>
+          </div>
+
+          <button id="btnSaveNote" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg shadow-sm transition flex items-center justify-center space-x-2 text-sm">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>클라우드 동기화 (저장)</span>
+          </button>
+        </div>
+
+        <div class="lg:col-span-2 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900 flex items-center space-x-2">
+              <i class="fa-solid fa-list-check text-green-500"></i>
+              <span>나의 아카이브 피드</span>
+            </h3>
+            <span id="noteCount" class="text-xs bg-gray-200 text-gray-700 font-bold px-2 py-1 rounded-full">0개 보관됨</span>
+          </div>
+
+          <div id="noteList" class="space-y-4 max-h-[650px] overflow-y-auto pr-2">
+            <div class="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300 text-gray-400">
+              <i class="fa-regular fa-folder-open text-4xl mb-3 block"></i>
+              저장된 트러블슈팅/프롬프트 내역이 없습니다.
+            </div>
+          </div>
+        </div>
       </div>
-      <button class="refresh-btn" id="refreshBtn">데이터 새로고침</button>
-      <div id="statusFirebase" class="status"></div>
-      <div id="dataList" class="list"></div>
+
+      <div id="chatTab" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit space-y-5">
+          <div class="border-b border-gray-100 pb-3">
+            <h3 class="text-lg font-bold text-gray-900 flex items-center space-x-2">
+              <i class="fa-solid fa-sliders text-purple-500"></i>
+              <span>AI 연동 및 오디오 설정</span>
+            </h3>
+          </div>
+
+          <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
+            <div>
+              <span class="text-sm font-semibold text-gray-700 block">AI 답변 음성 읽어주기</span>
+              <span class="text-xs text-gray-400">답변 완료 시 자동으로 TTS 음성 재생</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="ttsToggle" class="sr-only peer" checked>
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">보이스 캐릭터</label>
+              <select id="ttsVoice" class="w-full border border-gray-300 rounded-lg p-2 text-xs bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="alloy" selected>Alloy (중성/기본)</option>
+                <option value="echo">Echo (독백/차분)</option>
+                <option value="fable">Fable (드라마틱)</option>
+                <option value="onyx">Onyx (부드러운 저음)</option>
+                <option value="nova">Nova (에너지 넘침)</option>
+                <option value="shimmer">Shimmer (깔끔한 고음)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase mb-1">말하기 속도</label>
+              <select id="ttsSpeed" class="w-full border border-gray-300 rounded-lg p-2 text-xs bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="0.8">0.8배속</option>
+                <option value="1.0" selected>1.0배속 (기본)</option>
+                <option value="1.2">1.2배속</option>
+                <option value="1.5">1.5배속</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="audioPlayerContainer" class="hidden space-y-2 pt-2 border-t border-gray-100">
+            <span class="text-xs font-bold text-gray-500 flex items-center space-x-1">
+              <i class="fa-solid fa-waveform-lines text-blue-500"></i>
+              <span>최신 생성 오디오 플레이어</span>
+            </span>
+            <audio id="globalAudioPlayer" controls class="w-full h-10"></audio>
+          </div>
+          
+          <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-800 space-y-2">
+            <span class="font-bold block"><i class="fa-solid fa-circle-info"></i> 연동 활용 팁:</span>
+            <p class="leading-relaxed">아카이브 피드 목록에서 <b>[AI 리뷰 전송]</b> 버튼을 누르면 기록해 둔 오답노트 스크립트와 언어 옵션 데이터가 챗봇 입력창으로 즉시 바인딩(연동)됩니다.</p>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white border border-gray-100 shadow-sm rounded-xl flex flex-col h-[600px]">
+          <div class="p-4 border-b border-gray-100 bg-gray-50 rounded-t-xl flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></span>
+              <span class="text-sm font-bold text-gray-700">DevPrompt LLM Engine (gpt-4o-mini)</span>
+            </div>
+            <button onclick="clearChat()" class="text-xs text-gray-400 hover:text-gray-600 flex items-center space-x-1">
+              <i class="fa-regular fa-trash-can"></i>
+              <span>대화 초기화</span>
+            </button>
+          </div>
+
+          <div id="chatStream" class="flex-grow p-4 overflow-y-auto space-y-4 text-sm">
+            <div class="flex space-x-3 items-start">
+              <div class="bg-blue-100 text-blue-600 p-2 rounded-lg text-xs font-bold">AI</div>
+              <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-tl-none max-w-[85%]">
+                안녕하세요! <b>DevPrompt Lab</b> 분석기입니다. 에러 코드를 전송하여 원인을 리팩토링받거나, 등록한 프롬프트 구문을 검증해 보세요. 오디오가 켜져 있으면 답변을 말로 읽어 드립니다!
+              </div>
+            </div>
+          </div>
+
+          <form id="chatForm" class="p-4 border-t border-gray-100 bg-white rounded-b-xl flex space-x-3">
+            <input type="text" id="chatQuestion" required class="flex-grow border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="AI에게 에러 디버깅을 요청하거나 질문을 작성하세요...">
+            <button type="submit" id="btnChatSubmit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition flex items-center space-x-2 shrink-0">
+              <span>보내기</span>
+              <i class="fa-regular fa-paper-plane"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+
     </section>
-  </div>
+  </main>
 
-  <div id="chatSection" class="container tab-content hidden">
-    <h1>ChatGPT 질문 답변</h1>
-    <div class="subtitle">GitHub Pages + Google Apps Script + OpenAI API 연동</div>
-    <div class="info">
-      현재 구조: GitHub Pages 화면 → Google Apps Script 서버 → OpenAI API → 답변 반환
-    </div>
-    <div class="chat-box">
-      <div>
-        <div class="label">질문</div>
-        <textarea id="questionInput" placeholder="질문을 입력하세요. 예: 파이썬 반복문을 쉽게 설명해줘."></textarea>
-      </div>
-      <div class="button-row">
-        <button class="clear-btn" id="clearChatBtn">초기화</button>
-        <button class="ask-btn" id="askBtn">질문하기</button>
-      </div>
-      <div id="statusChat" class="status"></div>
-      <div>
-        <div class="label">답변</div>
-        <div id="answerBox" class="answer-box">아직 답변이 없습니다.</div>
-      </div>
-      <div class="help">
-        단축키: 질문 입력창에서 Ctrl + Enter를 누르면 질문이 전송됩니다.
-      </div>
-    </div>
-  </div>
+  <footer class="bg-white border-t border-gray-200 py-6 mt-12 text-center text-xs text-gray-400">
+    <p>© 2026 DevPrompt Lab. Powered by Firebase Realtime DB & OpenAI gpt-4o-mini / tts-1.</p>
+  </footer>
 
-  <div id="ttsSection" class="container tab-content hidden">
-    <h1>AI TTS 음성 변환기</h1>
-    <div class="subtitle">텍스트를 AI 음성 mp3 파일로 변환합니다</div>
-    <div class="info">
-      현재 구조: GitHub Pages 화면 → Google Apps Script 서버 → OpenAI TTS API → mp3 음성 반환
-    </div>
-    <div class="option-box">
-      <select id="modelSelect">
-        <option value="tts-1">tts-1 빠른 생성</option>
-        <option value="tts-1-hd">tts-1-hd 고품질</option>
-      </select>
-      <select id="voiceSelect">
-        <option value="alloy">alloy</option>
-        <option value="echo">echo</option>
-        <option value="fable">fable</option>
-        <option value="onyx">onyx</option>
-        <option value="nova">nova</option>
-        <option value="shimmer">shimmer</option>
-      </select>
-      <input id="speedInput" type="number" min="0.25" max="4.0" step="0.05" value="1.0" placeholder="속도" />
-    </div>
-    <div>
-      <div class="label">변환할 텍스트</div>
-      <textarea id="textInput" placeholder="음성으로 바꿀 문장을 입력하세요."></textarea>
-    </div>
-    <div class="button-row">
-      <button class="clear-btn" id="clearTtsBtn">초기화</button>
-      <button class="make-btn" id="makeBtn">음성 만들기</button>
-    </div>
-    <div id="statusTts" class="status"></div>
-    <div id="resultBox" class="result-box hidden">
-      <div class="label">생성된 음성</div>
-      <audio id="audioPlayer" controls></audio>
-      <div class="button-row">
-        <a id="downloadLink" class="download-link" href="#" download="tts-audio.mp3">mp3 다운로드</a>
-      </div>
-    </div>
-    <div class="help">
-      속도는 0.25부터 4.0까지 조절할 수 있습니다.
-    </div>
-  </div>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-  <script type="module">
-    // Firebase CDN 모듈 정의 및 초기화
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getDatabase, ref, push, set, update, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-
+  <script>
+    // 1. 유저 지정 Firebase SDK 설정 구조 연동
     const firebaseConfig = {
       apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
       authDomain: "bin20703-edda7.firebaseapp.com",
@@ -321,280 +264,359 @@
       appId: "1:242056223892:web:885b9bf54aa60ce7732881",
       measurementId: "G-C2VDTXTVZQ"
     };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const database = getDatabase(app);
+    // 2. 구글 앱 스크립트 웹앱 배포 URL 바인딩 (본인 배포 주소로 변경 필수)
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_tPPZxFNsHwm5Rp8L-UMvUE_yojf4i96dTH-Ho6s3SNojNB31ye8SVmirP9uootOd/exec";
 
-    // 공통 탭 변환 라우팅 스크립팅 함수 전역 노출
-    window.switchTab = function(sectionId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(sectionId).classList.remove('hidden');
-      event.currentTarget.classList.add('active');
-    };
-
-    // --- [1] Firebase 스크립트 셀렉터 셋팅 ---
-    const authSection = document.getElementById('authSection');
-    const mainSection = document.getElementById('mainSection');
-    const emailInput = document.getElementById('emailInput');
-    const passwordInput = document.getElementById('passwordInput');
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const userEmail = document.getElementById('userEmail');
-    const titleInput = document.getElementById('titleInput');
-    const contentInput = document.getElementById('contentInput');
-    const addBtn = document.getElementById('addBtn');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const dataList = document.getElementById('dataList');
-    const statusFirebase = document.getElementById('statusFirebase');
-
+    // 글로벌 환경 상태 변수
     let currentUser = null;
-    let currentItemsRef = null;
+    let isSignUpMode = false;
 
-    function getEmailAndPassword() {
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-      if (!email || !password) { alert('이메일과 비밀번호를 모두 입력해주세요.'); return null; }
-      if (password.length < 6) { alert('비밀번호는 6자리 이상이어야 합니다.'); return null; }
-      return { email, password };
-    }
+    // DOM 캐싱 요소
+    const authSection = document.getElementById('authSection');
+    const mainAppSection = document.getElementById('mainAppSection');
+    const authForm = document.getElementById('authForm');
+    const authEmail = document.getElementById('authEmail');
+    const authPassword = document.getElementById('authPassword');
+    const authTitle = document.getElementById('authTitle');
+    const authSubtitle = document.getElementById('authSubtitle');
+    const btnAuthSubmit = document.getElementById('btnAuthSubmit');
+    const btnToggleAuth = document.getElementById('btnToggleAuth');
+    const userInfo = document.getElementById('userInfo');
+    const userDisplayEmail = document.getElementById('userDisplayEmail');
+    const btnLogout = document.getElementById('btnLogout');
 
-    signupBtn.addEventListener('click', async () => {
-      const account = getEmailAndPassword(); if (!account) return;
-      try {
-        await createUserWithEmailAndPassword(auth, account.email, account.password);
-        alert('회원가입이 완료되었습니다.');
-      } catch (error) { alert(getKoreanErrorMessage(error.code)); }
-    });
+    // 메모 및 챗봇 캐싱 요소
+    const noteLang = document.getElementById('noteLang');
+    const noteTitle = document.getElementById('noteTitle');
+    const noteContent = document.getElementById('noteContent');
+    const btnSaveNote = document.getElementById('btnSaveNote');
+    const noteList = document.getElementById('noteList');
+    const noteCount = document.getElementById('noteCount');
+    const chatForm = document.getElementById('chatForm');
+    const chatQuestion = document.getElementById('chatQuestion');
+    const chatStream = document.getElementById('chatStream');
+    const btnChatSubmit = document.getElementById('btnChatSubmit');
+    const ttsToggle = document.getElementById('ttsToggle');
+    const ttsVoice = document.getElementById('ttsVoice');
+    const ttsSpeed = document.getElementById('ttsSpeed');
+    const audioPlayerContainer = document.getElementById('audioPlayerContainer');
+    const globalAudioPlayer = document.getElementById('globalAudioPlayer');
 
-    loginBtn.addEventListener('click', async () => {
-      const account = getEmailAndPassword(); if (!account) return;
-      try { await signInWithEmailAndPassword(auth, account.email, account.password); } 
-      catch (error) { alert(getKoreanErrorMessage(error.code)); }
-    });
-
-    logoutBtn.addEventListener('click', async () => {
-      try { await signOut(auth); } catch (error) { alert('로그아웃에 실패했습니다.'); }
-    });
-
-    onAuthStateChanged(auth, (user) => {
+    // ==========================================
+    // ==========================================
+    auth.onAuthStateChanged((user) => {
       if (user) {
         currentUser = user;
         authSection.classList.add('hidden');
-        mainSection.classList.remove('hidden');
-        userEmail.textContent = user.email;
-        emailInput.value = ''; passwordInput.value = '';
-        startRealtimeDataListener(user.uid);
+        mainAppSection.classList.remove('hidden');
+        userInfo.classList.remove('hidden');
+        userDisplayEmail.textContent = user.email;
+        loadNotesStream(); // 로그인 완료 시 실시간 DB 리스너 바인딩
       } else {
         currentUser = null;
         authSection.classList.remove('hidden');
-        mainSection.classList.add('hidden');
-        userEmail.textContent = ''; dataList.innerHTML = '';
-        stopRealtimeDataListener();
+        mainAppSection.classList.add('hidden');
+        userInfo.classList.add('hidden');
+        noteList.innerHTML = ''; 
       }
     });
 
-    function startRealtimeDataListener(uid) {
-      stopRealtimeDataListener();
-      statusFirebase.textContent = '데이터를 불러오는 중입니다...';
-      currentItemsRef = ref(database, `users/${uid}/items`);
-      onValue(currentItemsRef, (snapshot) => {
-        renderData(snapshot.val());
-        statusFirebase.textContent = '데이터가 실시간으로 동기화되었습니다.';
-      }, (error) => {
-        console.error(error);
-        statusFirebase.textContent = '데이터 동기화 실패. 권한 설정을 확인하세요.';
-      });
-    }
+    // 로그인 / 회원가입 기능 분기 처리
+    authForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
 
-    function stopRealtimeDataListener() {
-      if (currentItemsRef) { off(currentItemsRef); currentItemsRef = null; }
-    }
-
-    addBtn.addEventListener('click', async () => {
-      if (!currentUser) return;
-      const title = titleInput.value.trim();
-      const content = contentInput.value.trim();
-      if (!title || !content) { alert('제목과 내용을 모두 입력해주세요.'); return; }
-      try {
-        const newItemRef = push(ref(database, `users/${currentUser.uid}/items`));
-        await set(newItemRef, { title, content, createdAt: new Date().toLocaleString('ko-KR'), updatedAt: '' });
-        titleInput.value = ''; contentInput.value = '';
-      } catch (error) { alert('데이터 추가 실패'); }
+      if(isSignUpMode) {
+        auth.createUserWithEmailAndPassword(email, password)
+          .then(() => alert('DevPrompt Lab 회원가입 성공! 서비스를 시작합니다.'))
+          .catch(err => alert('회원가입 오류: ' + err.message));
+      } else {
+        auth.signInWithEmailAndPassword(email, password)
+          .catch(err => alert('로그인 실패: ' + err.message));
+      }
     });
 
-    refreshBtn.addEventListener('click', () => { if (currentUser) startRealtimeDataListener(currentUser.uid); });
+    // 모드 전환 버튼 제어
+    btnToggleAuth.addEventListener('click', () => {
+      isSignUpMode = !isSignUpMode;
+      if (isSignUpMode) {
+        authTitle.textContent = "계정 생성 🚀";
+        authSubtitle.textContent = "포트폴리오 아카이브 저장을 위한 통합 계정을 만듭니다.";
+        btnAuthSubmit.textContent = "회원가입 완료";
+        btnToggleAuth.textContent = "이미 계정이 있으신가요? 로그인하기";
+      } else {
+        authTitle.textContent = "반갑습니다 👋";
+        authSubtitle.textContent = "DevPrompt Lab 서비스를 시작하려면 로그인하세요.";
+        btnAuthSubmit.textContent = "로그인";
+        btnToggleAuth.textContent = "계정이 없으신가요? 회원가입하기";
+      }
+    });
 
-    window.deleteData = async function(id) {
-      if (!currentUser || !confirm('정말 삭제하시겠습니까?')) return;
-      try { await remove(ref(database, `users/${currentUser.uid}/items/${id}`)); } catch (error) { alert('삭제 실패'); }
-    };
+    // 로그아웃 제어
+    btnLogout.addEventListener('click', () => {
+      if(confirm('로그아웃 하시겠습니까?')) auth.signOut();
+    });
 
-    window.updateData = async function(id) {
-      if (!currentUser) return;
-      const editTitle = document.getElementById(`edit-title-${id}`).value.trim();
-      const editContent = document.getElementById(`edit-content-${id}`).value.trim();
-      if (!editTitle || !editContent) { alert('빈 값을 입력할 수 없습니다.'); return; }
-      try {
-        await update(ref(database, `users/${currentUser.uid}/items/${id}`), {
-          title: editTitle, content: editContent, updatedAt: new Date().toLocaleString('ko-KR')
+    // ==========================================
+    // ==========================================
+    btnSaveNote.addEventListener('click', () => {
+      if(!currentUser) return;
+      const lang = noteLang.value;
+      const title = noteTitle.value.trim();
+      const content = noteContent.value.trim();
+
+      if(!title || !content) {
+        alert('제목과 내용을 모두 빠짐없이 채워주세요.');
+        return;
+      }
+
+      // 유저 고유 데이터 노드 구조 설계
+      const noteData = {
+        lang: lang,
+        title: title,
+        content: content,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      database.ref(`users/${currentUser.uid}/notes`).push(noteData)
+        .then(() => {
+          noteTitle.value = '';
+          noteContent.value = '';
+          alert('클라우드 아카이브에 안전하게 동기화되었습니다!');
+        })
+        .catch(err => alert('데이터 저장 에러: ' + err.message));
+    });
+
+    // 실시간 피드 목록 로드 및 렌더링 함수
+    function loadNotesStream() {
+      database.ref(`users/${currentUser.uid}/notes`).on('value', (snapshot) => {
+        noteList.innerHTML = '';
+        const data = snapshot.val();
+        
+        if(!data) {
+          noteCount.textContent = "0개 보관됨";
+          noteList.innerHTML = `
+            <div class="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300 text-gray-400">
+              <i class="fa-regular fa-folder-open text-4xl mb-3 block"></i>
+              저장된 트러블슈팅/프롬프트 내역이 없습니다.
+            </div>`;
+          return;
+        }
+
+        const keys = Object.keys(data).reverse(); // 최신순 정렬
+        noteCount.textContent = `${keys.length}개 보관됨`;
+
+        keys.forEach(key => {
+          const item = data[key];
+          const badgeColor = getLangBadgeColor(item.lang);
+          const langText = getLangLabelText(item.lang);
+
+          const card = document.createElement('div');
+          card.className = "bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition space-y-3 relative";
+          card.innerHTML = `
+            <div class="flex items-start justify-between">
+              <div class="space-y-1">
+                <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded ${badgeColor}">
+                  ${langText}
+                </span>
+                <h4 class="text-base font-bold text-gray-900">${escapeHtml(item.title)}</h4>
+              </div>
+              <button onclick="deleteNote('${key}')" class="text-gray-400 hover:text-red-500 text-sm transition p-1">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+            <p class="text-xs text-gray-600 bg-gray-50 p-3 rounded-lg font-mono whitespace-pre-wrap max-h-32 overflow-y-auto border border-gray-100">${escapeHtml(item.content)}</p>
+            <div class="flex justify-end pt-1">
+              <button onclick="bindToChat('${key}', '${item.lang}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs px-3 py-1.5 rounded-lg transition flex items-center space-x-1">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                <span>AI 리뷰 전송 및 연동</span>
+              </button>
+            </div>
+          `;
+          noteList.appendChild(card);
         });
-        startRealtimeDataListener(currentUser.uid);
-      } catch (error) { alert('수정 실패'); }
-    };
-
-    function renderData(data) {
-      dataList.innerHTML = '';
-      if (!data) { dataList.innerHTML = '<div class="empty">아직 저장된 데이터가 없습니다.</div>'; return; }
-      Object.entries(data).reverse().forEach(([id, item]) => {
-        const div = document.createElement('div');
-        div.className = 'item'; div.id = `item-${id}`;
-        div.innerHTML = `
-          <div>
-            <p class="item-title">${escapeHTML(item.title || '')}</p>
-            <p class="item-content">${escapeHTML(item.content || '')}</p>
-            <div class="item-date">생성: ${item.createdAt || '-'} ${item.updatedAt ? ` / 수정: ${item.updatedAt}` : ''}</div>
-          </div>
-          <div class="item-actions">
-            <button class="edit-btn" onclick="showEditForm('${id}', '${escapeForAttribute(item.title || '')}', '${escapeForAttribute(item.content || '')}')">수정</button>
-            <button class="delete-btn" onclick="deleteData('${id}')">삭제</button>
-          </div>
-        `;
-        dataList.appendChild(div);
       });
     }
 
-    window.showEditForm = function(id, title, content) {
-      document.getElementById(`item-${id}`).innerHTML = `
-        <div class="edit-box">
-          <input id="edit-title-${id}" type="text" value="${title}" />
-          <input id="edit-content-${id}" type="text" value="${content}" />
-          <button class="save-btn" onclick="updateData('${id}')">저장</button>
-          <button class="cancel-btn" onclick="startRealtimeDataListener(currentUser.uid)">취소</button>
-        </div>
+    // 데이터 영구 삭제
+    function deleteNote(key) {
+      if(confirm('이 기록을 보관소에서 영구 삭제하시겠습니까?')) {
+        database.ref(`users/${currentUser.uid}/notes/${key}`).remove();
+      }
+    }
+
+    // 메모 정보 챗봇으로 연동 바인딩
+    function bindToChat(key, lang) {
+      database.ref(`users/${currentUser.uid}/notes/${key}`).once('value', (snapshot) => {
+        const item = snapshot.val();
+        if(!item) return;
+
+        const langLabel = getLangLabelText(item.lang);
+        // LLM에 전달할 최적화 컨텍스트 문장 조합 생성
+        chatQuestion.value = `[카테고리: ${langLabel}] 내가 작성한 아래 기록에 대해 에러 디버깅, 최적화 팁 또는 개선된 프롬프트 양식을 피드백해줘.\n\n제목: ${item.title}\n내용:\n${item.content}`;
+        
+        switchTab('chatTab'); // 챗봇 탭으로 강제 포커스 이동
+        chatQuestion.focus();
+      });
+    }
+
+    // ==========================================
+    // ==========================================
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const question = chatQuestion.value.trim();
+      if(!question) return;
+
+      if(APPS_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEBAPP_URL") {
+        alert('구글 앱 스크립트 배포 주소(APPS_SCRIPT_URL)를 코드 상단에 정확히 기입해 주세요.');
+        return;
+      }
+
+      // 화면 유저 입력 노출 렌더링
+      appendMessage('USER', question);
+      chatQuestion.value = '';
+      setChatLoading(true);
+
+      try {
+        // [1단계] 구글 앱 스크립트를 경유하여 ChatGPT 대화 수행 요청
+        const chatResponse = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ type: 'chat', question: question })
+        });
+        const chatResult = await chatResponse.json();
+
+        if (chatResult.error) throw new Error(chatResult.error);
+        
+        const aiAnswer = chatResult.answer;
+        appendMessage('AI', aiAnswer); // 텍스트 출력 완료
+
+        // [2단계] TTS 토글 기능이 ON 상태인 경우 자동 유기적 TTS 통신 수행
+        if (ttsToggle.checked) {
+          // 마크다운 및 태그 기호 제거하여 읽기 적합한 플레인 텍스트 필터링
+          const cleanText = aiAnswer.replace(/[*#`_\-]/g, '').substring(0, 400); 
+          
+          const ttsResponse = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+              type: 'tts',
+              text: cleanText,
+              voice: ttsVoice.value,
+              speed: parseFloat(ttsSpeed.value)
+            })
+          });
+          const ttsResult = await ttsResponse.json();
+
+          if (ttsResult.error) throw new Error(ttsResult.error);
+
+          // Base64 사운드 데이터 바이너리 오디오 객체 전환 및 재생 실행
+          if (ttsResult.audioBase64) {
+            const audioSrc = "data:audio/mp3;base64," + ttsResult.audioBase64;
+            globalAudioPlayer.src = audioSrc;
+            audioPlayerContainer.classList.remove('hidden');
+            globalAudioPlayer.play();
+          }
+        }
+
+      } catch (err) {
+        appendMessage('ERROR', '시스템 처리 중 예외 발생: ' + err.toString());
+      } finally {
+        setChatLoading(false);
+      }
+    });
+
+    // 챗 스트림 뷰어 드로잉 헬퍼
+    function appendMessage(sender, text) {
+      const msgWrap = document.createElement('div');
+      msgWrap.className = "flex space-x-3 items-start animate-fade-in";
+      
+      let badge = `<div class="bg-blue-100 text-blue-600 p-2 rounded-lg text-xs font-bold shrink-0">AI</div>`;
+      let contentClass = "bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-tl-none max-w-[85%] font-normal";
+
+      if (sender === 'USER') {
+        msgWrap.className = "flex space-x-3 items-start justify-end";
+        badge = `<div class="bg-gray-800 text-white p-2 rounded-lg text-xs font-bold order-2 shrink-0">MY</div>`;
+        contentClass = "bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none max-w-[85%] font-normal order-1";
+      } else if (sender === 'ERROR') {
+        badge = `<div class="bg-red-100 text-red-600 p-2 rounded-lg text-xs font-bold shrink-0">ERR</div>`;
+        contentClass = "bg-red-50 text-red-700 p-3 rounded-2xl rounded-tl-none max-w-[85%] font-mono text-xs";
+      }
+
+      msgWrap.innerHTML = `
+        ${badge}
+        <div class="${contentClass} whitespace-pre-wrap">${escapeHtml(text)}</div>
       `;
-    };
-
-    // --- [2] ChatGPT 및 오픈AI 공통 인터페이스 라우팅 엔드포인트 세팅 ---
-    // ⚠️ 아래 웹앱 배포 URL 주소는 두 페이지가 매핑될 통합 Apps Script 주소입니다.
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0JoRhsZW8LekOQD-f4boPDZgEAH1Y7A_HnZ94N4cqRwv6GchHr61kLusPbUSy72Im/exec';
-
-    const questionInput = document.getElementById('questionInput');
-    const answerBox = document.getElementById('answerBox');
-    const statusChat = document.getElementById('statusChat');
-    const askBtn = document.getElementById('askBtn');
-    const clearChatBtn = document.getElementById('clearChatBtn');
-
-    askBtn.addEventListener('click', askChatGPT);
-    clearChatBtn.addEventListener('click', () => { questionInput.value = ''; answerBox.textContent = '아직 답변이 없습니다.'; statusChat.textContent = ''; });
-
-    async function askChatGPT() {
-      const question = questionInput.value.trim();
-      if (!question) { alert('질문을 입력해주세요.'); return; }
-      try {
-        askBtn.disabled = true; askBtn.textContent = '생성 중...';
-        answerBox.textContent = '답변을 생성하는 중입니다...';
-        statusChat.textContent = 'Apps Script 서버에 요청을 보내는 중입니다.';
-
-        const response = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({ type: 'chat', question: question }) // 통합 라우터용 식별자 명시
-        });
-        const data = await response.json();
-        if (data.error) throw new Error(data.error);
-
-        answerBox.textContent = data.answer || '답변을 가져오지 못했습니다.';
-        statusChat.textContent = '답변 생성 완료';
-      } catch (error) {
-        answerBox.textContent = '오류가 발생했습니다.\n\n' + error.message;
-        statusChat.textContent = '요청 실패';
-      } finally { askBtn.disabled = false; askBtn.textContent = '질문하기'; }
+      chatStream.appendChild(msgWrap);
+      chatStream.scrollTop = chatStream.scrollHeight; // 스크롤 바닥 고정
     }
 
-    // --- [3] TTS 스크립트 기능 서브셋팅 ---
-    const textInput = document.getElementById('textInput');
-    const modelSelect = document.getElementById('modelSelect');
-    const voiceSelect = document.getElementById('voiceSelect');
-    const speedInput = document.getElementById('speedInput');
-    const makeBtn = document.getElementById('makeBtn');
-    const clearTtsBtn = document.getElementById('clearTtsBtn');
-    const statusTts = document.getElementById('statusTts');
-    const resultBox = document.getElementById('resultBox');
-    const audioPlayer = document.getElementById('audioPlayer');
-    const downloadLink = document.getElementById('downloadLink');
-
-    makeBtn.addEventListener('click', makeSpeech);
-    clearTtsBtn.addEventListener('click', () => { textInput.value = ''; statusTts.textContent = ''; audioPlayer.removeAttribute('src'); resultBox.classList.add('hidden'); });
-
-    async function makeSpeech() {
-      const text = textInput.value.trim();
-      const model = modelSelect.value;
-      const voice = voiceSelect.value;
-      const speed = Number(speedInput.value || 1.0);
-
-      if (!text) { alert('음성으로 변환할 텍스트를 입력해주세요.'); return; }
-      if (speed < 0.25 || speed > 4.0) { alert('속도는 0.25부터 4.0 사이로 입력해주세요.'); return; }
-
-      try {
-        makeBtn.disabled = true; makeBtn.textContent = '생성 중...';
-        resultBox.classList.add('hidden');
-        statusTts.textContent = 'Apps Script 서버에 TTS 요청을 보내는 중입니다.';
-
-        const response = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({ type: 'tts', text: text, model: model, voice: voice, speed: speed })
-        });
-        const data = await response.json();
-        if (data.error) throw new Error(data.error);
-        if (!data.audioBase64) throw new Error('음성 데이터를 받지 못했습니다.');
-
-        const audioUrl = base64ToAudioUrl(data.audioBase64, 'audio/mpeg');
-        audioPlayer.src = audioUrl;
-        downloadLink.href = audioUrl;
-        downloadLink.download = `tts-${Date.now()}.mp3`;
-        resultBox.classList.remove('hidden');
-        statusTts.textContent = '음성 생성 완료';
-      } catch (error) {
-        statusTts.textContent = '요청 실패'; alert('오류: ' + error.message);
-      } finally { makeBtn.disabled = false; makeBtn.textContent = '음성 만들기'; }
-    }
-
-    function base64ToAudioUrl(base64, mimeType) {
-      const byteCharacters = atob(base64);
-      const byteArrays = [];
-      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-        const slice = byteCharacters.slice(offset, offset + 512);
-        const byteNumbers = new Array(slice.length);
-        for (let i = 0; i < slice.length; i++) byteNumbers[i] = slice.charCodeAt(i);
-        byteArrays.push(new Uint8Array(byteNumbers));
-      }
-      return URL.createObjectURL(new Blob(byteArrays, { type: mimeType }));
-    }
-
-    // 에러 이스케이프 유틸리티 목록
-    function escapeHTML(text) { return String(text).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;'); }
-    function escapeForAttribute(text) { return escapeHTML(text).replaceAll('`', '&#096;'); }
-    function getKoreanErrorMessage(code) {
-      switch (code) {
-        case 'auth/email-already-in-use': return '이미 가입된 이메일입니다.';
-        case 'auth/invalid-email': return '이메일 형식이 올바르지 않습니다.';
-        case 'auth/weak-password': return '비밀번호가 너무 약합니다. 6자리 이상으로 입력해주세요.';
-        case 'auth/user-not-found': case 'auth/wrong-password': case 'auth/invalid-credential': return '이메일 또는 비밀번호가 올바르지 않습니다.';
-        default: return `오류 발생: ${code}`;
+    // UI 로딩 디스플레이 인터랙션
+    function setChatLoading(isLoading) {
+      if(isLoading) {
+        btnChatSubmit.disabled = true;
+        btnChatSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+        chatQuestion.placeholder = "AI 엔진이 답변과 분석 음성을 로드 중입니다...";
+      } else {
+        btnChatSubmit.disabled = false;
+        btnChatSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+        chatQuestion.placeholder = "AI에게 에러 디버깅을 요청하거나 질문을 작성하세요...";
       }
     }
 
-    // 글로벌 단축키 바인딩 리스너
-    document.addEventListener('keydown', function(event) {
-      if (event.key !== 'Enter') return;
-      const activeId = document.activeElement.id;
-      if (activeId === 'emailInput' || activeId === 'passwordInput') loginBtn.click();
-      if (activeId === 'titleInput' || activeId === 'contentInput') addBtn.click();
-      if (activeId === 'questionInput' && event.ctrlKey) askChatGPT();
-      if (activeId === 'textInput' && event.ctrlKey) makeSpeech();
-    });
+    function clearChat() {
+      chatStream.innerHTML = '';
+      audioPlayerContainer.classList.add('hidden');
+      globalAudioPlayer.src = '';
+      appendMessage('AI', '대화가 정상적으로 비워졌습니다. 새로운 에러 피드백 문장을 전송해 주세요.');
+    }
+
+    // ==========================================
+    // ==========================================
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      document.getElementById('tabBtn-' + tabId).classList.add('active');
+    }
+
+    function getLangBadgeColor(lang) {
+      const colors = {
+        javascript: "bg-yellow-100 text-yellow-800",
+        python: "bg-blue-100 text-blue-800",
+        c_cpp: "bg-purple-100 text-purple-800",
+        java: "bg-orange-100 text-orange-800",
+        prompt: "bg-emerald-100 text-emerald-800",
+        etc: "bg-gray-100 text-gray-800"
+      };
+      return colors[lang] || colors.etc;
+    }
+
+    function getLangLabelText(lang) {
+      const labels = {
+        javascript: "JavaScript",
+        python: "Python",
+        c_cpp: "C / C++",
+        java: "Java",
+        prompt: "Prompt (프롬프트)",
+        etc: "기타 (CS/에러)"
+      };
+      return labels[lang] || "기타";
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
   </script>
 </body>
 </html>
