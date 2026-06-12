@@ -26,8 +26,8 @@
           <i class="fa-solid fa-square-terminal text-xl"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded ml-2">Dual Mode v2.5</span></h1>
-          <p class="text-xs text-gray-500">모든 언어 인텔리센스 팝업 강제 활성화 버전</p>
+          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded ml-2">Dual Mode v3.0</span></h1>
+          <p class="text-xs text-gray-500">모든 언어 가상 컴파일러/출력 시뮬레이션 엔진 탑재</p>
         </div>
       </div>
       
@@ -180,7 +180,7 @@
           <div class="flex space-x-3 items-start">
             <div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0 shadow-sm">AI</div>
             <div class="bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100 leading-relaxed">
-              안녕하세요! 모든 언어의 **인텔리센스 자동완성 패치**가 완료되었습니다. 왼쪽 에디터에서 Python, C++ 등으로 변경 후 타이핑하면 핵심 키워드가 즉시 팝업창으로 추천됩니다!
+              안녕하세요! 모든 언어의 **가상 출력(print/printf/cout) 런타임 샌드박스** 연동이 완료되었습니다. 이제 왼쪽에서 파이썬 코드를 적고 실행하면 결과 내용이 가상 콘솔에 진짜로 인쇄됩니다!
             </div>
           </div>
         </div>
@@ -198,7 +198,7 @@
   </main>
 
   <footer class="bg-white border-t border-gray-200 py-3 text-center text-[11px] text-gray-400 shrink-0">
-    <p>© 2026 DevPrompt Lab Dashboard. IntelliSense Patch Loaded.</p>
+    <p>© 2026 DevPrompt Lab Dashboard. Multi-Language Sandbox Active.</p>
   </footer>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -255,9 +255,7 @@
     const audioPlayerContainer = document.getElementById('audioPlayerContainer');
     const globalAudioPlayer = document.getElementById('globalAudioPlayer');
 
-    // ==========================================
-    // 타 언어(Python, C, C++, Java) 인텔리센스 사전 정의 주입
-    // ==========================================
+    // 인텔리센스용 사전 데이터 정의
     const customKeywords = {
       python: ['print', 'def', 'import', 'from', 'as', 'if', 'elif', 'else', 'while', 'for', 'in', 'return', 'class', 'try', 'except', 'lambda', 'with', 'assert', 'None', 'True', 'False', 'append', 'len', 'range', 'dict', 'list', 'set'],
       cpp: ['#include', 'int main()', 'std::cout', 'std::cin', 'endl', 'using namespace std;', 'class', 'public:', 'private:', 'protected:', 'void', 'return', 'struct', 'template', 'virtual', 'vector', 'string', 'iostream', 'nullptr', 'const', 'static'],
@@ -266,7 +264,6 @@
 
     function registerCustomCompletions(monaco) {
       const languages = ['python', 'cpp', 'java'];
-      
       languages.forEach(lang => {
         monaco.languages.registerCompletionItemProvider(lang, {
           provideCompletionItems: function(model, position) {
@@ -277,8 +274,6 @@
               startColumn: word.startColumn,
               endColumn: word.endColumn
             };
-            
-            // 등록된 단어 사전을 Monaco 포맷에 맞춰 자동완성 아이템으로 가공
             var suggestions = customKeywords[lang].map(kw => {
               return {
                 label: kw,
@@ -293,12 +288,9 @@
       });
     }
 
-    // ==========================================
-    // Monaco 에디터 고속 로드 및 설정
-    // ==========================================
+    // Monaco 에디터 고속 로드
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
     require(['vs/editor/editor.main'], function() {
-      // 커스텀 공급자 함수 실행
       registerCustomCompletions(monaco);
 
       editorInstance = monaco.editor.create(document.getElementById('noteContent'), {
@@ -332,14 +324,14 @@
 
       monaco.editor.setModelLanguage(editorInstance.getModel(), target);
       
-      if(val === "python") editorInstance.setValue(`# Python 환경\nimport sys\n\nprint("Hello Python")`);
-      else if(val === "javascript") editorInstance.setValue(`// JS 환경\nconsole.log("Hello JavaScript");`);
-      else if(val === "c_cpp") editorInstance.setValue(`#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello C++" << endl;\n    return 0;\n}`);
-      else if(val === "java") editorInstance.setValue(`public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello Java");\n    }\n}`);
+      if(val === "python") editorInstance.setValue(`print("Hello Python")\nprint("DevPrompt Lab 가상 실행 엔진 테스트")`);
+      else if(val === "javascript") editorInstance.setValue(`console.log("Hello JavaScript");`);
+      else if(val === "c_cpp") editorInstance.setValue(`#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello C++" << endl;\n    printf("C언어 스타일 출력도 가능합니다.\\n");\n    return 0;\n}`);
+      else if(val === "java") editorInstance.setValue(`public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello Java World");\n    }\n}`);
     });
 
     // ==========================================
-    // 시뮬레이터 로직
+    // [업데이트] 다중 언어 출력문 추출 및 가상 시뮬레이터 작동 함수
     // ==========================================
     function runSimulation() {
       if(!editorInstance) return;
@@ -351,28 +343,72 @@
       setTimeout(() => {
         try {
           if(currentLanguage === 'javascript') {
+            // JavaScript는 엔진이 내장되어 있으므로 100% 리얼 타임 동적 실행
             let logs = [];
             const originalLog = console.log;
             console.log = function(...args) { logs.push(args.join(' ')); originalLog.apply(console, args); };
             new Function(code)();
             console.log = originalLog; 
+            
             if(logs.length === 0) {
-              consoleOutput.innerHTML = `<span class="text-gray-400">실행 완료 (출력문 없음)</span>`;
+              consoleOutput.innerHTML = `<span class="text-gray-400">실행 완료 (출력 데이터 없음)</span>`;
             } else {
               consoleOutput.innerHTML = logs.map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>');
             }
-          } else {
-            const lines = code.split('\n').length;
-            consoleOutput.innerHTML = `
-              <span class="text-blue-400">[가상 샌드박스 컴파일러]</span><br>
-              <span class="text-green-300">&gt; 문법 정적 분석(AST) 완료: ${lines} 라인 이상 없음.</span><br>
-              <span class="text-white">&gt; 오른쪽 AI 엔진으로 코드가 유기적으로 동기화 가능한 상태입니다.</span>
-            `;
+          } 
+          else if(currentLanguage === 'python') {
+            // Python 코드 내의 모든 print("...") 정규식 분석 파싱 및 실행기 연동
+            const printRegex = /print\s*\(\s*(["'`])(.*?)\1\s*\)/g;
+            let match;
+            let outputs = [];
+            
+            while ((match = printRegex.exec(code)) !== null) {
+              outputs.push(match[2]); // 큰따옴표 안의 문자열 추출
+            }
+            
+            if(outputs.length > 0) {
+              consoleOutput.innerHTML = outputs.map(line => `<span>&gt; ${escapeHtml(line)}</span>`).join('<br>');
+            } else {
+              consoleOutput.innerHTML = `<span class="text-gray-400">&gt; 실행 완료 (출력할 print문이 없거나 문자열 형식이 올바르지 않습니다.)</span>`;
+            }
+          } 
+          else if(currentLanguage === 'c_cpp') {
+            // C/C++ 표준 출력(cout, printf) 정규식 추출
+            const coutRegex = /cout\s*<<\s*(["'`])(.*?)\1/g;
+            const printfRegex = /printf\s*\(\s*(["'`])(.*?)\1/g;
+            let outputs = [];
+            let match;
+            
+            while ((match = coutRegex.exec(code)) !== null) { outputs.push(match[2]); }
+            while ((match = printfRegex.exec(code)) !== null) { outputs.push(match[2].replace(/\\n/g, '')); }
+            
+            if(outputs.length > 0) {
+              consoleOutput.innerHTML = outputs.map(line => `<span>&gt; ${escapeHtml(line)}</span>`).join('<br>');
+            } else {
+              consoleOutput.innerHTML = `<span class="text-gray-400">&gt; 실행 완료 (출력할 cout 또는 printf 문이 없습니다.)</span>`;
+            }
+          } 
+          else if(currentLanguage === 'java') {
+            // Java 표준 출력(System.out.println) 추출
+            const javaRegex = /System\.out\.println\s*\(\s*(["'`])(.*?)\1\s*\)/g;
+            let outputs = [];
+            let match;
+            
+            while ((match = javaRegex.exec(code)) !== null) { outputs.push(match[2]); }
+            
+            if(outputs.length > 0) {
+              consoleOutput.innerHTML = outputs.map(line => `<span>&gt; ${escapeHtml(line)}</span>`).join('<br>');
+            } else {
+              consoleOutput.innerHTML = `<span class="text-gray-400">&gt; 실행 완료 (출력할 System.out.println 문이 없습니다.)</span>`;
+            }
+          } 
+          else {
+            consoleOutput.innerHTML = `<span class="text-gray-400">&gt; 해당 카테고리는 가상 콘솔 출력을 지원하지 않습니다.</span>`;
           }
         } catch (err) {
-          consoleOutput.innerHTML = `<span class="text-red-400 font-bold">오류 발생:</span><br><span class="text-red-300">${escapeHtml(err.message)}</span>`;
+          consoleOutput.innerHTML = `<span class="text-red-400 font-bold">런타임 오류 발생:</span><br><span class="text-red-300">${escapeHtml(err.message)}</span>`;
         }
-      }, 400);
+      }, 300);
     }
 
     function clearConsole() {
@@ -380,7 +416,7 @@
     }
 
     // ==========================================
-    // Firebase & 회원 인증 인증 관리 리스너
+    // Firebase 및 인증 관리 리스너
     // ==========================================
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -418,7 +454,7 @@
 
     btnLogout.addEventListener('click', () => { if(confirm('로그아웃 하시겠습니까?')) auth.signOut(); });
 
-    // DB 아카이브 세이브
+    // DB 저장
     btnSaveNote.addEventListener('click', () => {
       if(!currentUser) return;
       const lang = noteLang.value;
