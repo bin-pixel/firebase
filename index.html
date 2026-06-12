@@ -9,7 +9,7 @@
   
   <script src="https://cdn.jsdelivr.net/npm/pyodide@0.26.1/pyodide.js"></script>
   
-  <script src="https://cdn.jsdelivr.net/npm/jscpp@0.4.3/dist/JSCPP.v0.4.3.min.js"></script>
+  <script src="https://unpkg.com/jscpp@0.4.3/dist/JSCPP.v0.4.3.min.js"></script>
   
   <style>
     .monaco-editor, .monaco-editor .overflow-guard { border-radius: 0.5rem; }
@@ -28,8 +28,8 @@
           <i class="fa-solid fa-square-terminal text-xl"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded ml-2">Hyper VM v6.0</span></h1>
-          <p class="text-xs text-gray-500">Python VM & C/C++ LLVM 가상 인터프리터 런타임 탑재 완료</p>
+          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded ml-2">Hyper VM v6.1</span></h1>
+          <p class="text-xs text-gray-500">Python VM & C/C++ LLVM 가상 인터프리터 패치 완료</p>
         </div>
       </div>
       
@@ -117,7 +117,7 @@
                 </div>
               </div>
               <div id="consoleOutput" class="h-20 overflow-y-auto space-y-1 text-green-400">
-                <span class="text-gray-500">// JS, Python, C언어 모두 실제 가상 커널 엔진 연산이 실시간으로 작동합니다.</span>
+                <span class="text-gray-500">// 코드를 작성하고 실행하면 가상 머신 연산 결과가 여기에 출력됩니다.</span>
               </div>
             </div>
 
@@ -173,7 +173,7 @@
           <div class="flex space-x-3 items-start">
             <div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0 shadow-sm">AI</div>
             <div class="bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100 leading-relaxed">
-              업그레이드가 완료되었습니다! 이제 **C언어도 가상 메모리와 가속 커널을 가진 독립 런타임엔진(JSCPP VM)**이 연동되었습니다. 복잡한 수식 계산, 반복문, 실제 컴파일 에러 경고까지 브라우저 내에서 완벽하게 처리됩니다.
+              도입부 런타임 CDN 라이브러리 에러 복구가 완료되었습니다! 이제 C언어 모드에서 에러 없이 정상적으로 컴파일러 루프가 구동됩니다.
             </div>
           </div>
         </div>
@@ -244,9 +244,6 @@
       monaco.editor.setModelLanguage(editorInstance.getModel(), target);
     });
 
-    // ==========================================
-    // [핵심 교체] 100% 진짜 인터프리터 런타임 구동 엔진부
-    // ==========================================
     async function runSimulation() {
       if(!editorInstance) return;
       const code = editorInstance.getValue();
@@ -282,10 +279,14 @@
         } catch(err) { consoleOutput.innerHTML = `<span class="text-red-400 font-bold">Python VM Error:</span><br><span class="text-red-300">${escapeHtml(err.message)}</span>`; }
       } 
       else if(currentLanguage === 'c_cpp') {
-        // [리얼 C-인터프리터 컴파일 커널 구동]
+        // [안전성 패치] 만약 라이브러리가 모종의 이유로 로드 안되었을 때를 대비한 방어 코드
+        if (typeof JSCPP === "undefined") {
+          consoleOutput.innerHTML = `<span class="text-red-400 font-bold">엔진 로드 지연 오류:</span><br><span class="text-gray-300">네트워크 리소스 문제로 C컴파일러 코어 라이브러리를 가져오지 못했습니다. 잠시 후 [실행]을 다시 누르거나 새로고침(F5)을 해주세요.</span>`;
+          return;
+        }
+
         try {
           let outputBuffer = [];
-          // JSCPP 라이브러리의 표준 입출력 객체 가로채기 커스텀 설정
           let config = {
             stdio: {
               write: function(str) {
@@ -295,17 +296,16 @@
             unsigned_overflow: "warn"
           };
           
-          // 가상 컴퓨터 가동 및 C언어 기계어 추적 실행
+          // 가상 런타임 실행
           JSCPP.run(code, "", config);
           
           let resultText = outputBuffer.join('');
           if(resultText.trim() === "") {
-            consoleOutput.innerHTML = `<span class="text-gray-400">&gt; 컴파일 및 연산 성공 (표준 출력값 없음)</span>`;
+            consoleOutput.innerHTML = `<span class="text-gray-400">&gt; 컴파일 성공 (출력문 printf 가 존재하지 않습니다.)</span>`;
           } else {
             consoleOutput.innerHTML = resultText.split('\n').filter(l => l).map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>');
           }
         } catch(e) {
-          // 가짜 텍스트 파싱이 아니기 때문에, 세미콜론 누락이나 진짜 변수 선언 에러를 추적해 냄
           consoleOutput.innerHTML = `<span class="text-red-500 font-bold">C언어 가상컴파일 코어 에러 발생:</span><br><span class="text-red-400 text-xs">${escapeHtml(e.toString())}</span>`;
         }
       }
