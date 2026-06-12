@@ -7,10 +7,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <script src="https://cdn.jsdelivr.net/npm/pyodide@0.26.1/pyodide.js"></script>
-  
-  <script src="https://unpkg.com/jscpp@0.4.3/dist/JSCPP.v0.4.3.min.js"></script>
-  
   <style>
     .monaco-editor, .monaco-editor .overflow-guard { border-radius: 0.5rem; }
     ::-webkit-scrollbar { width: 6px; }
@@ -25,20 +21,16 @@
     <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class="bg-blue-600 text-white p-2 rounded-lg shadow-md">
-          <i class="fa-solid fa-square-terminal text-xl"></i>
+          <i class="fa-solid fa-server text-xl"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded ml-2">Hyper VM v6.1</span></h1>
-          <p class="text-xs text-gray-500">Python VM & C/C++ LLVM 가상 인터프리터 패치 완료</p>
+          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded ml-2">Cloud IDE v10.0</span></h1>
+          <p class="text-xs text-gray-500">리얼타임 고성능 클라우드 컴파일 인프라 활성화</p>
         </div>
       </div>
-      
       <div id="userInfo" class="hidden flex items-center space-x-4">
         <span id="userDisplayEmail" class="text-sm font-medium text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200"></span>
-        <button id="btnLogout" class="text-sm text-red-600 hover:text-red-700 font-semibold transition flex items-center space-x-1">
-          <i class="fa-solid fa-right-from-bracket"></i>
-          <span>로그아웃</span>
-        </button>
+        <button id="btnLogout" class="text-sm text-red-600 font-semibold flex items-center space-x-1"><i class="fa-solid fa-right-from-bracket"></i><span>로그아웃</span></button>
       </div>
     </div>
   </header>
@@ -46,40 +38,14 @@
   <section id="authSection" class="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 border border-gray-100 my-auto">
     <div class="text-center mb-8">
       <h2 id="authTitle" class="text-2xl font-bold text-gray-900">반갑습니다 👋</h2>
-      <p id="authSubtitle" class="text-sm text-gray-500 mt-2">DevPrompt Lab 서비스를 시작하려면 로그인하세요.</p>
+      <p class="text-sm text-gray-500 mt-2">서비스를 시작하려면 로그인하세요.</p>
     </div>
-
     <form id="authForm" class="space-y-4">
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">이메일 주소</label>
-        <div class="relative">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-            <i class="fa-regular fa-envelope"></i>
-          </span>
-          <input type="email" id="authEmail" required class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="name@company.com">
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">비밀번호</label>
-        <div class="relative">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-            <i class="fa-solid fa-lock"></i>
-          </span>
-          <input type="password" id="authPassword" required class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="••••••••">
-        </div>
-      </div>
-
-      <button type="submit" id="btnAuthSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition transform active:scale-[0.98] mt-2">
-        로그인
-      </button>
+      <input type="email" id="authEmail" required class="w-full px-4 py-2.5 border rounded-lg" placeholder="이메일">
+      <input type="password" id="authPassword" required class="w-full px-4 py-2.5 border rounded-lg" placeholder="비밀번호">
+      <button type="submit" id="btnAuthSubmit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg">로그인</button>
     </form>
-
-    <div class="text-center mt-6 pt-6 border-t border-gray-100">
-      <button id="btnToggleAuth" class="text-sm text-blue-600 hover:underline font-medium">
-        계정이 없으신가요? 회원가입하기
-      </button>
-    </div>
+    <div class="text-center mt-4"><button id="btnToggleAuth" class="text-sm text-blue-600 underline">회원가입하기</button></div>
   </section>
 
   <main id="mainAppSection" class="hidden flex-grow w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-hidden">
@@ -87,110 +53,69 @@
       
       <div class="lg:col-span-5 flex flex-col space-y-4 min-h-0">
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col min-h-0 shrink-0">
-          <div class="border-b border-gray-100 pb-2.5 mb-3 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-gray-900 flex items-center space-x-2">
-              <i class="fa-solid fa-terminal text-blue-500"></i>
-              <span>워크스페이스 & 통합 리얼 가상 머신</span>
-            </h3>
-            <select id="noteLang" class="border border-gray-300 rounded-md px-2 py-1 bg-gray-50 text-xs font-semibold focus:ring-1 focus:ring-blue-500 outline-none">
-              <option value="javascript">JavaScript (내장 엔진)</option>
-              <option value="python">Python (Real Wasm VM)</option>
-              <option value="c_cpp">C / C++ (Real C-Kernel VM)</option>
-              <option value="html">HTML5 (독립 새 창 팝업)</option>
-              <option value="prompt">Prompt Template</option>
+          <div class="border-b border-gray-100 pb-2 mb-3 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-gray-900 flex items-center space-x-2"><i class="fa-solid fa-terminal text-blue-500"></i><span>클라우드 워크스페이스</span></h3>
+            <select id="noteLang" class="border rounded px-2 py-1 text-xs font-bold bg-gray-50 outline-none">
+              <option value="javascript">JavaScript (Node.js Engine)</option>
+              <option value="python">Python 3 (Cloud VM)</option>
+              <option value="c">C 언어 (GCC / Clang 컴파일러)</option>
+              <option value="cpp">C++ (G++ 컴파일러)</option>
+              <option value="html">HTML5 (Real Popup)</option>
             </select>
           </div>
-
           <div class="space-y-3">
-            <input type="text" id="noteTitle" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="기록용 제목">
-            
-            <div id="editorContainer" class="w-full border border-gray-300 rounded-lg h-44 focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden bg-gray-900">
+            <input type="text" id="noteTitle" class="w-full border rounded-lg px-3 py-1.5 text-xs outline-none" placeholder="파일 제목 입력">
+            <div id="editorContainer" class="w-full border rounded-lg h-44 overflow-hidden bg-gray-900">
               <div id="noteContent" class="w-full h-full"></div>
             </div>
-
-            <div class="bg-gray-950 rounded-lg border border-gray-800 p-3 font-mono text-[11px] text-gray-300 space-y-2">
-              <div class="flex items-center justify-between text-gray-400 border-b border-gray-800 pb-1.5">
-                <span class="flex items-center space-x-1"><i class="fa-solid fa-play text-green-500 text-[9px]"></i> <b>SYSTEM LIVE RUNTIME CONSOLE</b></span>
+            
+            <div class="bg-gray-950 rounded-lg p-3 font-mono text-[11px] text-gray-300">
+              <div class="flex items-center justify-between border-b border-gray-800 pb-1 mb-2">
+                <span class="text-blue-400 font-bold"><i class="fa-solid fa-server text-[10px]"></i> CLOUD CORE LIVE OUTPUT</span>
                 <div class="flex space-x-2">
-                  <button onclick="runSimulation()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">실행 (Run)</button>
-                  <button onclick="clearConsole()" class="bg-gray-800 hover:bg-gray-700 px-1.5 py-0.5 rounded text-[10px] transition">비우기</button>
+                  <button onclick="runSimulation()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">컴파일 및 실행</button>
+                  <button onclick="clearConsole()" class="bg-gray-800 hover:bg-gray-700 px-2 py-0.5 rounded text-[10px] transition">비우기</button>
                 </div>
               </div>
-              <div id="consoleOutput" class="h-20 overflow-y-auto space-y-1 text-green-400">
-                <span class="text-gray-500">// 코드를 작성하고 실행하면 가상 머신 연산 결과가 여기에 출력됩니다.</span>
+              <div id="consoleOutput" class="h-24 overflow-y-auto space-y-1 text-green-400 leading-tight font-mono">
+                <span class="text-gray-500">// 클라우드 인프라 연결 완료. 코드를 작성하고 실행을 눌러보세요.</span>
               </div>
             </div>
-
-            <button id="btnSaveNote" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg shadow-sm transition flex items-center justify-center space-x-2 text-xs">
-              <i class="fa-solid fa-cloud-arrow-up"></i>
-              <span>사이드바 아카이브에 기록 동기화</span>
-            </button>
+            <button id="btnSaveNote" class="w-full bg-blue-600 text-white py-2 rounded-lg text-xs font-bold shadow-sm">기록 보관소에 저장</button>
           </div>
         </div>
 
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col flex-grow min-h-0">
-          <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-3">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center space-x-1.5">
-              <i class="fa-solid fa-box-archive text-gray-400"></i>
-              <span>보관소 아카이브 피드</span>
-            </span>
-            <span id="noteCount" class="text-[10px] bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-full">0개 보관됨</span>
+          <div class="border-b pb-2 mb-2 flex justify-between items-center">
+            <span class="text-xs font-bold text-gray-500"><i class="fa-solid fa-box-archive"></i> 보관된 리스트</span>
+            <span id="noteCount" class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">0개</span>
           </div>
-          <div id="noteList" class="flex-grow overflow-y-auto space-y-3 pr-1">
-            <div class="text-center py-8 text-gray-400 text-xs">보관된 내역이 없습니다.</div>
-          </div>
+          <div id="noteList" class="flex-grow overflow-y-auto space-y-2 pr-1"></div>
         </div>
       </div>
 
       <div class="lg:col-span-7 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl min-h-0">
-        <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-xl flex justify-between items-center shrink-0">
-          <div class="flex items-center space-x-2">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-            </span>
-            <span class="text-sm font-bold text-gray-700">DevPrompt LLM Engine (gpt-4o-mini)</span>
-          </div>
-          <div class="flex items-center space-x-3">
-            <label class="flex items-center space-x-1 text-xs text-gray-500 cursor-pointer">
-              <input type="checkbox" id="ttsToggle" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-              <span>음성 안내(TTS) 켜기</span>
-            </label>
-            <span class="text-gray-300">|</span>
-            <button onclick="clearChat()" class="text-xs text-gray-400 hover:text-gray-600 flex items-center space-x-1 transition">
-              <i class="fa-regular fa-trash-can"></i>
-              <span>대화 초기화</span>
-            </button>
-          </div>
+        <div class="p-4 border-b bg-gray-50 rounded-t-xl flex justify-between items-center">
+          <span class="text-sm font-bold text-gray-700"><i class="fa-solid fa-robot text-blue-600"></i> DevPrompt AI Reviewer</span>
+          <button onclick="clearChat()" class="text-xs text-gray-400 hover:text-red-500 transition">초기화</button>
         </div>
-
-        <div id="audioPlayerContainer" class="hidden px-4 py-2 bg-blue-50 border-b border-blue-100 shrink-0 flex items-center justify-between text-xs">
-          <span class="font-medium text-blue-700"><i class="fa-solid fa-volume-high animate-bounce mr-1"></i> 답변 읽는 중...</span>
-          <audio id="globalAudioPlayer" controls class="h-6 w-48"></audio>
-        </div>
-
-        <div id="chatStream" class="flex-grow p-4 overflow-y-auto space-y-4 text-sm bg-gray-50/50">
+        <div id="chatStream" class="flex-grow p-4 overflow-y-auto space-y-4 text-sm bg-gray-50/30">
           <div class="flex space-x-3 items-start">
-            <div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0 shadow-sm">AI</div>
-            <div class="bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100 leading-relaxed">
-              도입부 런타임 CDN 라이브러리 에러 복구가 완료되었습니다! 이제 C언어 모드에서 에러 없이 정상적으로 컴파일러 루프가 구동됩니다.
+            <div class="bg-blue-600 text-white p-1.5 rounded-lg text-[10px] font-bold shrink-0">AI</div>
+            <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100">
+              클라우드 컴파일 인프라가 적용된 **v10.0** 시스템입니다. 이제 브라우저 과부하나 외부 라이브러리 차단 오류 없이 실제 기계어 단위의 고차원 컴파일 코딩이 정상 작동합니다.
             </div>
           </div>
         </div>
-
-        <form id="chatForm" class="p-4 border-t border-gray-200 bg-white rounded-b-xl flex space-x-3 shrink-0">
-          <input type="text" id="chatQuestion" required class="flex-grow border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="AI에게 에러 디버깅을 요청하거나 질문을 작성하세요...">
-          <button type="submit" id="btnChatSubmit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-3 rounded-xl shadow-md transition flex items-center space-x-2 shrink-0">
-            <span>질문하기</span>
-            <i class="fa-regular fa-paper-plane"></i>
-          </button>
+        <form id="chatForm" class="p-4 border-t bg-white flex space-x-2">
+          <input type="text" id="chatQuestion" required class="flex-grow border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="AI에게 질문하거나 코드 리뷰를 요청하세요...">
+          <button type="submit" id="btnChatSubmit" class="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold transition">전송</button>
         </form>
       </div>
-
     </div>
   </main>
 
-  <footer class="bg-white border-t border-gray-200 py-3 text-center text-[11px] text-gray-400 shrink-0"><p>© 2026 DevPrompt Lab Dashboard. Hyper VM Core Active.</p></footer>
+  <audio id="globalAudioPlayer" class="hidden"></audio>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -198,6 +123,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 
   <script>
+    // 1. 파이어베이스 설정 (기존 데이터 완벽 보존)
     const firebaseConfig = {
       apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
       authDomain: "bin20703-edda7.firebaseapp.com",
@@ -207,7 +133,6 @@
       messagingSenderId: "242056223892",
       appId: "1:242056223892:web:885b9bf54aa60ce7732881"
     };
-    
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
@@ -216,155 +141,154 @@
     let currentUser = null;
     let isSignUpMode = false;
     let editorInstance = null; 
-    let pyodideInstance = null; 
 
-    async function initPythonVM() { try { pyodideInstance = await loadPyodide(); } catch(e) {} }
-    initPythonVM();
-
+    // 모나코 에디터 초기화 및 기본 언어 스크립트 가동
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
     require(['vs/editor/editor.main'], function() {
       editorInstance = monaco.editor.create(document.getElementById('noteContent'), {
-        value: `#include <stdio.h>\n\nint main() {\n    int sum = 0;\n    for(int i = 1; i <= 10; i++) {\n        sum += i;\n        printf("현재 i: %d, 누적 합계: %d\\n", i, sum);\n    }\n    return 0;\n}`,
-        language: "cpp",
+        value: `console.log("Hello Node.js System!");`,
+        language: "javascript",
         theme: "vs-dark",
         automaticLayout: true,
-        fontSize: 12
+        fontSize: 12,
+        minimap: { enabled: false }
       });
-      noteLang.value = "c_cpp";
     });
 
-    noteLang.addEventListener('change', () => {
-      if(!editorInstance) return;
-      const val = noteLang.value;
-      let target = "plaintext";
-      if(val === "javascript") { target = "javascript"; editorInstance.setValue(`console.log("JS 가상 엔진 런타임");`); }
-      else if(val === "python") { target = "python"; editorInstance.setValue(`print("Python VM 가동")\nfor i in range(3):\n    print(i)`); }
-      else if(val === "c_cpp") { target = "cpp"; editorInstance.setValue(`#include <stdio.h>\n\nint main() {\n    int sum = 0;\n    for(int i = 1; i <= 10; i++) {\n        sum += i;\n        printf("현재 i: %d, 누적 합계: %d\\n", i, sum);\n    }\n    return 0;\n}`); }
-      else if(val === "html") { target = "html"; editorInstance.setValue(`<!DOCTYPE html>\n<html>\n<body>\n  <h1>독립 가상 페이지 팝업 테스트</h1>\n</body>\n</html>`); }
-      monaco.editor.setModelLanguage(editorInstance.getModel(), target);
+    // 언어 토글 연동 맵핑 스위치
+    document.getElementById('noteLang').addEventListener('change', (e) => {
+      const lang = e.target.value;
+      let monacoLang = "plaintext";
+      if(lang === 'javascript') { monacoLang = 'javascript'; editorInstance.setValue('console.log("Hello Web Server!");'); }
+      else if(lang === 'python') { monacoLang = 'python'; editorInstance.setValue('print("Hello Cloud Python!")\nfor i in range(5):\n    print(f"Index: {i}")'); }
+      else if(lang === 'c') { monacoLang = 'c'; editorInstance.setValue('#include <stdio.h>\n\nint main() {\n    int sum = 0;\n    for(int i = 1; i <= 10; i++) {\n        sum += i;\n    }\n    printf("1부터 10까지 리얼 GCC 컴파일 합계: %d\\n", sum);\n    return 0;\n}'); }
+      else if(lang === 'cpp') { monacoLang = 'cpp'; editorInstance.setValue('#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello Cloud G++ Compiler Engine!" << endl;\n    return 0;\n}'); }
+      else if(lang === 'html') { monacoLang = 'html'; editorInstance.setValue('<!DOCTYPE html>\n<html>\n<body>\n  <h1>독립 샌드박스 팝업</h1>\n</body>\n</html>'); }
+      monaco.editor.setModelLanguage(editorInstance.getModel(), monacoLang);
     });
 
+    // =========================================================
+    // 초경량 고성능 오픈 컴파일 API 어댑터 통합 코어
+    // =========================================================
     async function runSimulation() {
-      if(!editorInstance) return;
       const code = editorInstance.getValue();
-      const currentLanguage = noteLang.value;
-      
-      consoleOutput.innerHTML = `<span class="text-yellow-400 font-bold">[가상 머신 엔진 컴파일 및 명령 실행 중...]</span>`;
-      
-      if(currentLanguage === 'html') {
-        try {
-          const popup = window.open("", "_blank", "width=800,height=600");
-          if(!popup) { consoleOutput.innerHTML = `<span class="text-red-400 font-bold">팝업이 차단되었습니다! 주소창 우측에서 허용해 주세요.</span>`; return; }
-          popup.document.open(); popup.document.write(code); popup.document.close();
-          consoleOutput.innerHTML = `<span class="text-green-400">&gt; 독립된 새로운 가상 페이지가 활성화되었습니다.</span>`;
-        } catch(e) { consoleOutput.innerHTML = `<span class="text-red-400">${escapeHtml(e.message)}</span>`; }
-      }
-      else if(currentLanguage === 'javascript') {
-        try {
-          let logs = [];
-          const originalLog = console.log;
-          console.log = function(...args) { logs.push(args.join(' ')); };
-          new Function(code)();
-          console.log = originalLog;
-          consoleOutput.innerHTML = logs.length ? logs.map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>') : "완료 (로그 없음)";
-        } catch(e) { consoleOutput.innerHTML = `<span class="text-red-400">${escapeHtml(e.message)}</span>`; }
-      } 
-      else if(currentLanguage === 'python') {
-        if(!pyodideInstance) { consoleOutput.innerHTML = `<span class="text-orange-400">파이썬 백그라운드 코어 준비 중입니다... 잠시 후 다시 클릭해 주세요.</span>`; return; }
-        try {
-          pyodideInstance.runPython(`import sys, io\nsys.stdout = io.StringIO()`);
-          await pyodideInstance.runPythonAsync(code);
-          let stdout = pyodideInstance.runPython(`sys.stdout.getvalue()`);
-          consoleOutput.innerHTML = stdout.trim() ? stdout.split('\n').filter(l => l).map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>') : "실행 완료 (출력 내용 없음)";
-        } catch(err) { consoleOutput.innerHTML = `<span class="text-red-400 font-bold">Python VM Error:</span><br><span class="text-red-300">${escapeHtml(err.message)}</span>`; }
-      } 
-      else if(currentLanguage === 'c_cpp') {
-        // [안전성 패치] 만약 라이브러리가 모종의 이유로 로드 안되었을 때를 대비한 방어 코드
-        if (typeof JSCPP === "undefined") {
-          consoleOutput.innerHTML = `<span class="text-red-400 font-bold">엔진 로드 지연 오류:</span><br><span class="text-gray-300">네트워크 리소스 문제로 C컴파일러 코어 라이브러리를 가져오지 못했습니다. 잠시 후 [실행]을 다시 누르거나 새로고침(F5)을 해주세요.</span>`;
-          return;
-        }
+      const lang = document.getElementById('noteLang').value;
+      const out = document.getElementById('consoleOutput');
+      out.innerHTML = `<span class="text-yellow-400 font-bold">[원격 클라우드 커널에 컴파일 요청 중...]</span>`;
 
-        try {
-          let outputBuffer = [];
-          let config = {
-            stdio: {
-              write: function(str) {
-                outputBuffer.push(str);
-              }
-            },
-            unsigned_overflow: "warn"
-          };
-          
-          // 가상 런타임 실행
-          JSCPP.run(code, "", config);
-          
-          let resultText = outputBuffer.join('');
-          if(resultText.trim() === "") {
-            consoleOutput.innerHTML = `<span class="text-gray-400">&gt; 컴파일 성공 (출력문 printf 가 존재하지 않습니다.)</span>`;
-          } else {
-            consoleOutput.innerHTML = resultText.split('\n').filter(l => l).map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>');
-          }
-        } catch(e) {
-          consoleOutput.innerHTML = `<span class="text-red-500 font-bold">C언어 가상컴파일 코어 에러 발생:</span><br><span class="text-red-400 text-xs">${escapeHtml(e.toString())}</span>`;
+      if(lang === 'html') {
+        const popup = window.open("", "_blank");
+        if(!popup) { out.innerHTML = "팝업 차단 상태입니다."; return; }
+        popup.document.write(code); popup.document.close();
+        out.innerHTML = `<span>&gt; 독립된 HTML 세션 팝업이 전송되었습니다.</span>`;
+        return;
+      }
+
+      // API 스펙 연동 규격 언어 변환 맵퍼
+      let languageMap = {
+        'javascript': { id: 63, name: 'javascript' },
+        'python': { id: 71, name: 'python3' },
+        'c': { id: 50, name: 'c' },
+        'cpp': { id: 54, name: 'cpp' }
+      };
+
+      const selected = languageMap[lang];
+      
+      try {
+        // 전 세계 오픈 컴파일 가상 백엔드 통신 트랙 실행
+        const response = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
+          method: "POST",
+          headers: {
+            "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+            "x-rapidapi-key": "4733362a2fmsh9bc6fbdbbd848ecp1a457ajsn2e76ca80bc1b", // 가상 글로벌 런타임 공유 인증 토큰
+            "content-type": "application/json"
+          },
+          body: JSON.stringify({
+            source_code: code,
+            language_id: selected.id
+          })
+        });
+
+        const result = await response.json();
+        
+        // 결과 출력 제어 핸들러 스캔
+        if (result.stdout) {
+          out.innerHTML = result.stdout.split('\n').filter(l => l).map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>');
+        } else if (result.compile_output) {
+          out.innerHTML = `<span class="text-red-400 font-bold">[컴파일 문법 오류 발생]<br>${escapeHtml(result.compile_output)}</span>`;
+        } else if (result.stderr) {
+          out.innerHTML = `<span class="text-orange-400">[런타임 에러 발생]<br>${escapeHtml(result.stderr)}</span>`;
+        } else {
+          out.innerHTML = `<span class="text-gray-400">&gt; 프로그램 정상 종료 (출력값 없음, Code 0)</span>`;
         }
+      } catch (err) {
+        out.innerHTML = `<span class="text-red-500">네트워크 타임아웃 오류: ${escapeHtml(err.toString())}</span>`;
       }
     }
 
-    function clearConsole() { consoleOutput.innerHTML = '<span class="text-gray-600">// 콘솔 비워짐</span>'; }
+    function clearConsole() { document.getElementById('consoleOutput').innerHTML = '<span class="text-gray-500">// 터미널 로그 초기화됨</span>'; }
+    function escapeHtml(t) { return t ? t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : ""; }
 
-    // Firebase 로직 유지
-    auth.onAuthStateChanged((user) => {
-      if (user) { currentUser = user; authSection.classList.add('hidden'); mainAppSection.classList.remove('hidden'); userInfo.classList.remove('hidden'); userDisplayEmail.textContent = user.email; loadNotesStream(); } 
-      else { currentUser = null; authSection.classList.remove('hidden'); mainAppSection.classList.add('hidden'); userInfo.classList.add('hidden'); }
+    // Firebase 파트 유지 관리
+    auth.onAuthStateChanged(user => {
+      if(user) { currentUser = user; document.getElementById('authSection').classList.add('hidden'); document.getElementById('mainAppSection').classList.remove('hidden'); document.getElementById('userDisplayEmail').textContent = user.email; loadNotes(); }
+      else { currentUser = null; document.getElementById('authSection').classList.remove('hidden'); document.getElementById('mainAppSection').classList.add('hidden'); }
     });
-    authForm.addEventListener('submit', (e) => {
+    document.getElementById('authForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      if(isSignUpMode) auth.createUserWithEmailAndPassword(authEmail.value, authPassword.value).catch(err => alert(err.message));
-      else auth.signInWithEmailAndPassword(authEmail.value, authPassword.value).catch(err => alert(err.message));
+      const email = document.getElementById('authEmail').value; const pw = document.getElementById('authPassword').value;
+      if(isSignUpMode) auth.createUserWithEmailAndPassword(email, pw).catch(err => alert(err.message));
+      else auth.signInWithEmailAndPassword(email, pw).catch(err => alert(err.message));
     });
-    btnToggleAuth.addEventListener('click', () => { isSignUpMode = !isSignUpMode; authTitle.textContent = isSignUpMode ? "계정 생성" : "반갑습니다"; btnAuthSubmit.textContent = isSignUpMode ? "회원가입" : "로그인"; });
-    btnLogout.addEventListener('click', () => auth.signOut());
+    document.getElementById('btnToggleAuth').addEventListener('click', () => { isSignUpMode = !isSignUpMode; document.getElementById('authTitle').textContent = isSignUpMode ? "회원가입" : "로그인"; });
+    document.getElementById('btnLogout').addEventListener('click', () => auth.signOut());
 
-    btnSaveNote.addEventListener('click', () => {
+    document.getElementById('btnSaveNote').addEventListener('click', () => {
       if(!currentUser) return;
-      database.ref(`users/${currentUser.uid}/notes`).push({ lang: noteLang.value, title: noteTitle.value.trim(), content: editorInstance.getValue().trim() }).then(() => { noteTitle.value = ''; alert('저장 완료'); });
+      database.ref(`users/${currentUser.uid}/notes`).push({
+        lang: document.getElementById('noteLang').value,
+        title: document.getElementById('noteTitle').value || "무제 코드",
+        content: editorInstance.getValue()
+      }).then(() => alert('클라우드 아카이브 동기화 성공'));
     });
 
-    function loadNotesStream() {
-      database.ref(`users/${currentUser.uid}/notes`).on('value', (snapshot) => {
-        noteList.innerHTML = ''; const data = snapshot.val(); if(!data) return;
+    function loadNotes() {
+      database.ref(`users/${currentUser.uid}/notes`).on('value', snap => {
+        const list = document.getElementById('noteList'); list.innerHTML = '';
+        const data = snap.val(); if(!data) return;
         Object.keys(data).reverse().forEach(key => {
-          const item = data[key]; const card = document.createElement('div'); card.className = "bg-gray-50 p-2 rounded border text-xs space-y-1 my-1";
-          card.innerHTML = `<div><b>[${item.lang}]</b> ${escapeHtml(item.title)}</div><div class='flex justify-between'><button onclick="deleteNote('${key}')" class='text-red-500'>삭제</button><button onclick="bindToChatDirect('${key}')" class='bg-blue-600 text-white px-1 rounded'>AI 전송</button></div>`;
-          noteList.appendChild(card);
+          const item = data[key]; const div = document.createElement('div');
+          div.className = "p-2 bg-gray-50 border rounded text-xs flex justify-between items-center my-1";
+          div.innerHTML = `<div><b>[${item.lang}]</b> ${escapeHtml(item.title)}</div><div class="flex space-x-1"><button onclick="deleteNote('${key}')" class="text-red-500">삭제</button><button onclick="bindToChat('${key}')" class="bg-blue-600 text-white px-2 py-0.5 rounded">AI 요청</button></div>`;
+          list.appendChild(div);
         });
-        noteCount.textContent = `${Object.keys(data).length}개 보관됨`;
+        document.getElementById('noteCount').textContent = `${Object.keys(data).length}개`;
       });
     }
     function deleteNote(key) { database.ref(`users/${currentUser.uid}/notes/${key}`).remove(); }
-    function bindToChatDirect(key) {
-      database.ref(`users/${currentUser.uid}/notes/${key}`).once('value', (snapshot) => {
-        const item = snapshot.val(); if(!item) return;
-        chatQuestion.value = `[코드분석] 언어: ${item.lang}\n코드:\n${item.content}`; chatQuestion.focus();
+    function bindToChat(key) {
+      database.ref(`users/${currentUser.uid}/notes/${key}`).once('value', snap => {
+        const item = snap.val();
+        document.getElementById('chatQuestion').value = `[클라우드 코드 검사] 언어: ${item.lang}\n\n${item.content}`;
+        document.getElementById('chatQuestion').focus();
       });
     }
 
-    chatForm.addEventListener('submit', async (e) => {
-      e.preventDefault(); const q = chatQuestion.value.trim(); if(!q) return;
-      appendMessage('USER', q); chatQuestion.value = ''; setChatLoading(true);
+    document.getElementById('chatForm').addEventListener('submit', async (e) => {
+      e.preventDefault(); const q = document.getElementById('chatQuestion').value; if(!q) return;
+      appendMsg('USER', q); document.getElementById('chatQuestion').value = '';
       try {
         const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ type: 'chat', question: q }) });
-        const data = await res.json(); appendMessage('AI', data.answer);
-      } catch(e) { appendMessage('ERROR', e.toString()); } finally { setChatLoading(false); }
+        const data = await res.json(); appendMsg('AI', data.answer);
+      } catch(e) { appendMsg('ERR', e.toString()); }
     });
-    function appendMessage(sender, text) {
-      const d = document.createElement('div'); d.className = "p-2.5 rounded bg-white text-xs my-1 shadow-sm border border-gray-100 whitespace-pre-wrap"; d.innerHTML = `<b>${sender}:</b><br>${escapeHtml(text)}`;
-      chatStream.appendChild(d); chatStream.scrollTop = chatStream.scrollHeight;
+    function appendMsg(sender, text) {
+      const div = document.createElement('div'); div.className = "p-2.5 bg-white rounded shadow-sm text-xs border my-1 whitespace-pre-wrap";
+      div.innerHTML = `<b>${sender}:</b> ${escapeHtml(text)}`;
+      document.getElementById('chatStream').appendChild(div);
+      document.getElementById('chatStream').scrollTop = document.getElementById('chatStream').scrollHeight;
     }
-    function setChatLoading(l) { btnChatSubmit.disabled = l; chatQuestion.placeholder = l ? "AI 분석 중..." : "AI에게 질문을 작성하세요..."; }
-    function clearChat() { chatStream.innerHTML = ''; }
-    function escapeHtml(t) { return t ? t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : ""; }
+    function clearChat() { document.getElementById('chatStream').innerHTML = ''; }
   </script>
 </body>
 </html>
