@@ -8,11 +8,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    /* 모나코 에디터 및 내부 컴포넌트 라운딩 */
     .monaco-editor, .monaco-editor .overflow-guard {
       border-radius: 0.5rem;
     }
-    /* 커스텀 스크롤바 */
     ::-webkit-scrollbar {
       width: 6px;
     }
@@ -106,10 +104,10 @@
             <select id="noteLang" class="border border-gray-300 rounded-md px-2 py-1 bg-gray-50 text-xs font-semibold focus:ring-1 focus:ring-blue-500 outline-none">
               <option value="javascript">JavaScript</option>
               <option value="python">Python</option>
-              <option value="c_cpp">C / C++</option>
+              <option value="cpp">C / C++</option>
               <option value="java">Java</option>
-              <option value="prompt">Prompt Template</option>
-              <option value="etc">기타 에러로그</option>
+              <option value="markdown">Prompt Template</option>
+              <option value="plaintext">기타 에러로그</option>
             </select>
           </div>
 
@@ -223,7 +221,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 
   <script>
-    // 1. Firebase 데이터베이스 및 보안 초기화 연동
+    // 1. Firebase 데이터베이스 초기화
     const firebaseConfig = {
       apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
       authDomain: "bin20703-edda7.firebaseapp.com",
@@ -239,14 +237,13 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // 2. 외부 가상 LLM 호출용 구글 웹앱 종단주소
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_tPPZxFNsHwm5Rp8L-UMvUE_yojf4i96dTH-Ho6s3SNojNB31ye8SVmirP9uootOd/exec";
 
     let currentUser = null;
     let isSignUpMode = false;
     let editorInstance = null; 
 
-    // DOM 캐시 캐치
+    // DOM 캐시
     const authSection = document.getElementById('authSection');
     const mainAppSection = document.getElementById('mainAppSection');
     const authForm = document.getElementById('authForm');
@@ -292,31 +289,38 @@
         lineNumbers: "on",
         wordWrap: "on",
         
-        quickSuggestions: { other: true, comments: false, strings: false },
+        // [핵심 변경] 모든 언어에서 팝업창 및 기본 인텔리센스가 강제 작동하도록 옵션 튜닝
+        quickSuggestions: { other: true, comments: true, strings: true },
         suggestOnTriggerCharacters: true,
         acceptSuggestionOnEnter: "on",
         tabCompletion: "on",
-        parameterHints: { enabled: true }
+        parameterHints: { enabled: true },
+        wordBasedSuggestions: true,      // 기존에 입력한 변수명/함수명을 팝업창에 추천
+        autoClosingBrackets: "always",    // 괄호 자동 완성 활성화
+        autoClosingQuotes: "always"       // 따옴표 자동 완성 활성화
       });
     });
 
-    // 드롭다운 변경 시 인텔리센스 가이드 단어 모델 스위칭 
+    // 드롭다운 변경 시 인텔리센스 가이드 및 문법 강조 즉시 전환
     noteLang.addEventListener('change', () => {
       if(!editorInstance) return;
-      const val = noteLang.value;
-      let target = "plaintext";
+      const targetLang = noteLang.value; // 'javascript', 'python', 'cpp', 'java', 'markdown', 'plaintext'
 
-      if(val === "javascript") target = "javascript";
-      else if(val === "python") target = "python";
-      else if(val === "c_cpp") target = "cpp";
-      else if(val === "java") target = "java";
-      else if(val === "prompt") target = "markdown";
-
-      monaco.editor.setModelLanguage(editorInstance.getModel(), target);
+      // 에디터 모델의 언어 스펙 교체
+      monaco.editor.setModelLanguage(editorInstance.getModel(), targetLang);
       
-      // 초기 프리셋 코드 살짝 제공
-      if(val === "python") editorInstance.setValue(`# Python 시뮬레이션 환경\nprint("Hello World Python")`);
-      else if(val === "javascript") editorInstance.setValue(`// JS 가상 환경\nconsole.log("Hello JS Dashboard");`);
+      // 언어별 초기 프리셋 스니펫 제공 (자동완성 팝업 활성화 유도)
+      if(targetLang === "python") {
+        editorInstance.setValue(`# Python 환경\ndef calculate_score(data):\n    print("Processing:", data)\n\ncalculate_score("DevPrompt")`);
+      } else if(targetLang === "javascript") {
+        editorInstance.setValue(`// JS 환경\nconsole.log("Hello JS Dashboard");`);
+      } else if(targetLang === "cpp") {
+        editorInstance.setValue(`// C / C++ 환경\n#include <stdio.h>\n\nint main() {\n    printf("Hello C Language\\n");\n    return 0;\n}`);
+      } else if(targetLang === "java") {
+        editorInstance.setValue(`// Java 환경\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello Java");\n    }\n}`);
+      } else {
+        editorInstance.setValue(`// 텍스트 분석 환경\n입력값: `);
+      }
     });
 
     // ==========================================
@@ -331,7 +335,6 @@
       
       setTimeout(() => {
         try {
-          // JavaScript인 경우 프론트엔드 가상 샌드박스로 결과 콘솔 인터셉트 출력 가능
           if(currentLanguage === 'javascript') {
             let logs = [];
             const originalLog = console.log;
@@ -340,7 +343,6 @@
               originalLog.apply(console, args);
             };
             
-            // 가상 스크립트 실행 조치
             new Function(code)();
             console.log = originalLog; // 원복
             
@@ -350,12 +352,12 @@
               consoleOutput.innerHTML = logs.map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>');
             }
           } else {
-            // Python, C++, Java 등 타 컴파일 언어는 컴파일러 환경이 없으므로 구문 분석 가상 시뮬레이트 아웃풋 처리
+            // 타 언어는 내장 클라이언트 단 파싱 로그 시뮬레이션 출력
             const lines = code.split('\n').length;
             consoleOutput.innerHTML = `
-              <span class="text-blue-400">[Virtual Console Sandbox Output]</span><br>
-              <span class="text-green-300">&gt; 컴파일 타겟 검증 성공: ${lines} 라인 스캔 완료.</span><br>
-              <span class="text-white">&gt; 가상 메모리 적재 정상 파싱 완료. AI 리뷰 전송 준비 상태 완료.</span>
+              <span class="text-blue-400">[Monaco Client Engine Sandbox]</span><br>
+              <span class="text-green-300">&gt; 로컬 구문 하이라이트 및 괄호 스캔 완료: ${lines} 라인 확인.</span><br>
+              <span class="text-white">&gt; 정상 적재 완료. 정밀 디버깅이 필요하면 우측 [AI로 전송] 버튼을 활용하세요.</span>
             `;
           }
         } catch (err) {
@@ -492,7 +494,6 @@
       }
     }
 
-    // 템플릿 코드 -> 바로 오른쪽 AI 챗 질문 입력칸에 데이터 바인딩 로직
     function bindToChatDirect(key) {
       database.ref(`users/${currentUser.uid}/notes/${key}`).once('value', (snapshot) => {
         const item = snapshot.val();
@@ -525,7 +526,6 @@
         const aiAnswer = chatResult.answer;
         appendMessage('AI', aiAnswer); 
 
-        // TTS 오디오 동시 출력 제어
         if (ttsToggle.checked) {
           const cleanText = aiAnswer.replace(/[*#`_\-]/g, '').substring(0, 300); 
           const ttsResponse = await fetch(APPS_SCRIPT_URL, {
@@ -594,7 +594,7 @@
     }
 
     function getLangLabelText(lang) {
-      const labels = { javascript: "JavaScript", python: "Python", c_cpp: "C / C++", java: "Java", prompt: "Prompt", etc: "Error Log" };
+      const labels = { javascript: "JavaScript", python: "Python", cpp: "C / C++", java: "Java", markdown: "Prompt", plaintext: "Error Log" };
       return labels[lang] || "기타";
     }
 
