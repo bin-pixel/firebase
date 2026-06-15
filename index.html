@@ -6,8 +6,11 @@
   <title>DevPrompt Lab - 듀얼 인터랙티브 작업실</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jscpp@0.0.9/dist/JSCPP.es5.min.js"></script>
   
   <style>
     .monaco-editor, .monaco-editor .overflow-guard { border-radius: 0.5rem; }
@@ -26,8 +29,8 @@
           <i class="fa-solid fa-square-terminal text-xl"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded ml-2">v3.4 Precise Engine</span></h1>
-          <p class="text-xs text-gray-500">JS·Python·C++ 실시간 코드 가상 빌더 및 커서 타겟 인텔리센스 워크스페이스</p>
+          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded ml-2">v3.5 Engine Core</span></h1>
+          <p class="text-xs text-gray-500">JS·Python·C++ 3대 언어 브라우저 실시간 가상 인터프리터 머신</p>
         </div>
       </div>
       
@@ -52,7 +55,7 @@
             <select id="noteLang" class="border border-gray-300 rounded-md px-2 py-1 bg-gray-50 text-xs font-semibold focus:ring-1 focus:ring-blue-500 outline-none">
               <option value="javascript">JavaScript</option>
               <option value="python">Python</option>
-              <option value="cpp">C / C++</option>
+              <option value="cpp">C / C++ (JSCPP)</option>
             </select>
           </div>
 
@@ -65,7 +68,7 @@
 
             <div class="bg-gray-950 rounded-lg border border-gray-800 p-3 font-mono text-[11px] text-gray-300 space-y-2">
               <div class="flex items-center justify-between text-gray-400 border-b border-gray-800 pb-1.5">
-                <span class="flex items-center space-x-1"><i class="fa-solid fa-play text-green-500 text-[9px]"></i> <b>INTELLIGENT RUNTIME CONSOLE</b></span>
+                <span class="flex items-center space-x-1"><i class="fa-solid fa-play text-green-500 text-[9px]"></i> <b>REALTIME INTERPRETER CONSOLE</b></span>
                 <div class="flex space-x-1.5">
                   <button onclick="runNativeCode()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">
                     <i class="fa-solid fa-play mr-0.5"></i> 코드 실행
@@ -77,7 +80,7 @@
                 </div>
               </div>
               <div id="consoleOutput" class="h-24 overflow-y-auto space-y-1 text-green-400">
-                <span class="text-gray-500">// 코드를 작성해 보세요. 타이핑을 멈추면 미완성 단어(pri 등)도 GPT가 인텔리센스 팝업처럼 제안합니다.</span>
+                <span class="text-gray-500">// 준비 완료. C++ 코드도 가짜 흉내가 아닌 변수 할당, 루프 연산이 브라우저에서 진짜 실행됩니다.</span>
               </div>
             </div>
 
@@ -130,8 +133,8 @@
           <div class="flex space-x-3 items-start">
             <div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">AI</div>
             <div class="bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100">
-              반갑습니다! **DevPrompt Lab v3.4** 공간입니다. <br>
-              이제 에디터에서 `pri` 같이 미완성 단어를 치고 멈추더라도 GPT가 **현재 커서 위치**를 분석하여 유연하게 자동완성 코드를 제안합니다. 코드 실행창은 완벽하게 분리되어 실제 인터프리터 결과값을 도출합니다.
+              반갑습니다! **DevPrompt Lab v3.5 오픈소스 인터프리터 팩** 공간입니다.<br>
+              제안해 주신 오픈소스 오픈 런타임 탑재 규칙에 의거하여, 이제 Python은 Skulpt 가상 머신이, C/C++은 **JSCPP VM 컴파일러**가 실제 메모리 기반 해석을 브라우저 샌드박스에서 원천 수행합니다.
             </div>
           </div>
         </div>
@@ -168,7 +171,7 @@
   </section>
 
   <footer class="bg-white border-t border-gray-200 py-3 text-center text-[11px] text-gray-400 shrink-0">
-    <p>© 2026 DevPrompt Lab Dashboard. Systems Live.</p>
+    <p>© 2026 DevPrompt Lab Dashboard. High-Performance Virtual Interpreter Environment.</p>
   </footer>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -198,7 +201,7 @@
     let editorInstance = null; 
     let gptIntellisenseTimer = null;
 
-    // DOM 캐시 묶음
+    // DOM 캐시 정의
     const authSection = document.getElementById('authSection');
     const mainAppSection = document.getElementById('mainAppSection');
     const authForm = document.getElementById('authForm');
@@ -226,7 +229,7 @@
     const audioPlayerContainer = document.getElementById('audioPlayerContainer');
     const globalAudioPlayer = document.getElementById('globalAudioPlayer');
 
-    // Word-Safe Truncation 구현 (단어 잘림 버그 수정)
+    // TTS 안전 절삭 유틸리티
     function getSafeTruncatedText(text, limit = 85) {
       if (text.length <= limit) return text;
       const edgeIndex = text.lastIndexOf(' ', limit);
@@ -234,22 +237,31 @@
       return text.substring(0, edgeIndex) + " ...";
     }
 
-    // Monaco & IntelliSense 런타임 빌드
+    // Monaco 작업 영역 동적 스위칭 및 타겟 인텔리센스 구성
     function updateMonacoRuntime(lang, customValue = null) {
       const container = document.getElementById('noteContent');
       if (editorInstance) { editorInstance.dispose(); editorInstance = null; }
       container.innerHTML = ""; 
 
-      let initialValue = customValue || (lang === "python" ? `import math\n\npri` : lang === "cpp" ? `#include <iostream>\nusing namespace std;\n\nint main() {\n    co\n}` : `console.log("Ready");`);
+      let initialValue = customValue;
+      if (!initialValue) {
+        if (lang === "python") {
+          initialValue = `import math\n\npri`;
+        } else if (lang === "cpp") {
+          initialValue = `#include <iostream>\nusing namespace std;\n\nint main() {\n    int sum = 0;\n    for(int i=1; i<=5; i++) {\n        sum += i;\n    }\n    cout << "결과값: " << sum << endl;\n    return 0;\n}`;
+        } else {
+          initialValue = `console.log("Ready");`;
+        }
+      }
 
       editorInstance = monaco.editor.create(container, {
         value: initialValue, language: lang, theme: "vs-dark", automaticLayout: true, minimap: { enabled: false }, fontSize: 12
       });
 
-      // [핵심] 미완성 단어 추론용 고도화된 커서 타겟팅 인텔리센스 스트림
+      // 미완성 커서 타겟형 GPT 스마트 어시스트 스케줄러
       editorInstance.onDidChangeModelContent(() => {
         const selectedLang = noteLang.value;
-        if (selectedLang === 'javascript') return; // JS는 자체 빌트인 서제스트 활용
+        if (selectedLang === 'javascript') return;
 
         clearTimeout(gptIntellisenseTimer);
         gptIntellisenseTimer = setTimeout(async () => {
@@ -262,14 +274,14 @@
 
           if (textBeforeCursor.trim().length < 2) return;
 
-          consoleOutput.innerHTML = `<span class="text-blue-400 text-[10px]"><i class="fa-solid fa-spinner animate-spin"></i> 커서 위치 단어 유추형 GPT 인텔리센스 탐색 중...</span>`;
+          consoleOutput.innerHTML = `<span class="text-blue-400 text-[10px]"><i class="fa-solid fa-spinner animate-spin"></i> 실시간 커서 인텔리센스 매핑 중...</span>`;
 
           try {
             const response = await fetch(APPS_SCRIPT_URL, {
               method: 'POST',
               body: JSON.stringify({
                 type: 'chat',
-                question: `아래는 개발자가 작성 중인 ${selectedLang} 코드이다. [CURSOR] 위치의 단어나 불완전한 문장을 보고 완성형 코드를 정확하게 추천해줘. 부연설명 없이 오직 완성 및 교체될 짤막한 제안 코드 리스트만 반환하라.\n\n코드 내용:\n${textBeforeCursor}[CURSOR]${textAfterCursor}`
+                question: `아래는 개발자가 작성 중인 ${selectedLang} 코드이다. [CURSOR] 위치의 문맥 단어를 분석하여 완성형 문법 구조를 제안해라. 부연설명 없이 오직 즉시 교체해 넣을 제안 코드만 1~2줄 이내로 깔끔하게 반환할 것.\n\n${textBeforeCursor}[CURSOR]${textAfterCursor}`
               })
             });
             const result = await response.json();
@@ -279,7 +291,7 @@
           } catch(e) {
             consoleOutput.innerHTML = `<span class="text-gray-500">// 가상 어시스턴트 대기 중</span>`;
           }
-        }, 1300); // 1.3초 정적 감지 디바운싱
+        }, 1300);
       });
     }
 
@@ -288,7 +300,7 @@
     noteLang.addEventListener('change', () => { updateMonacoRuntime(noteLang.value); });
 
     // ==========================================
-    // 독립 기능 1: 각 프로그래밍 언어별 실제 코드 가상 구동 엔진
+    // 고도화 핵심: 3대 언어 로컬 가상 실행 컨텍스트 스페이스
     // ==========================================
     function runNativeCode() {
       if(!editorInstance) return;
@@ -307,8 +319,8 @@
         } catch(err) {
           consoleOutput.innerHTML = `<span class="text-red-400 font-bold">JS Runtime Error:</span> ${escapeHtml(err.message)}`;
         }
-      } else if (lang === "python") {
-        // Skulpt 내부 인터프리터 작동 환경 빌드
+      } 
+      else if (lang === "python") {
         Sk.configure({
           output: function(text) {
             const span = document.createElement('span');
@@ -320,31 +332,43 @@
             return Sk.builtinFiles["files"][x];
           }
         });
-        consoleOutput.innerHTML = "<span class='text-gray-500'>[Python Skulpt VM 구동중...]</span><br>";
+        consoleOutput.innerHTML = "<span class='text-gray-500'>[Python Skulpt VM 가동]</span><br>";
         Sk.misceval.asyncToPromise(function() {
           return Sk.importMainWithBody("<stdin>", false, code, true);
         }).catch(function(err) {
           consoleOutput.innerHTML += `<span class="text-red-400 font-bold">Python Runtime Error:</span> ${escapeHtml(err.toString())}`;
         });
-      } else if (lang === "cpp") {
-        // C++ 구문 분석기 시뮬레이션 환경 (표준 스트림 모방 가상 실행)
-        consoleOutput.innerHTML = "<span class='text-gray-500'>[C++ 가상 빌더 가동]</span><br>";
-        if (code.includes("cout")) {
-          const matches = [...code.matchAll(/cout\s*<<\s*["']([^"']*)["']/g)];
-          if (matches.length > 0) {
-            matches.forEach(m => { consoleOutput.innerHTML += `<span>&gt; ${escapeHtml(m[1])}</span><br>`; });
-          } else {
-            consoleOutput.innerHTML += `<span class="text-green-400">&gt; [Process exited with status 0]</span>`;
-          }
-        } else {
-          consoleOutput.innerHTML += `<span class="text-gray-400">컴파일 완료 (표준 cout 출력이 검출되지 않음).</span>`;
+      } 
+      else if (lang === "cpp") {
+        // [오픈소스 엔진 분기] JSCPP 인터프리터 연동 실행
+        consoleOutput.innerHTML = "<span class='text-gray-500'>[JSCPP Virtual Machine 가동 중...]</span><br>";
+        try {
+          let cppOutputBuffer = "";
+          // JSCPP에서 발생하는 표준출력 스트림을 가로채기 위한 래퍼 구성
+          const config = {
+            stdio: {
+              write: function(ch) {
+                cppOutputBuffer += ch;
+              }
+            },
+            unsigned_overflow: "warn"
+          };
+          
+          // 가상 컴파일 및 가동 실행
+          JSCPP.run(code, "", config);
+          
+          consoleOutput.innerHTML += cppOutputBuffer.length === 0 
+            ? `<span class="text-gray-400">컴파일 성공 (출력 문자열 스트림 없음)</span>`
+            : `<span>${escapeHtml(cppOutputBuffer).replace(/\n/g, '<br>')}</span>`;
+            
+          consoleOutput.innerHTML += `<br><span class="text-green-400 font-bold">&gt; [Process exited via JSCPP Sandbox]</span>`;
+        } catch(err) {
+          consoleOutput.innerHTML += `<span class="text-red-400 font-bold">C++ Runtime/Syntax Error:</span><br><span class="text-red-300">${escapeHtml(err.toString())}</span>`;
         }
       }
     }
 
-    // ==========================================
     // 독립 기능 2: GPT 정밀 진단 전용 스페이스 (TTS 발동 원천 차단)
-    // ==========================================
     async function runGptDiagnosis() {
       if(!editorInstance) return;
       const code = editorInstance.getValue();
@@ -353,13 +377,10 @@
       consoleOutput.innerHTML = `<span class="text-yellow-400 font-bold"><i class="fa-solid fa-circle-nodes animate-pulse"></i> 코드를 분석용 GPT 컨텍스트 서버로 전송 중...</span>`;
       const diagPrompt = `[정밀 진단 요청]\n언어: ${lang}\n코드:\n${code}\n\n위 코드의 런타임 오류 가능성이나 구조적 결함을 개발자 관점에서 딱 2줄로 리팩토링 포인트만 핵심 정리해줘.`;
       
-      // 두 번째 인자(triggersTTS)를 false로 강제 설정하여 음성 낭독 오작동 대참사 차단
       await executeAIEngineDirect(diagPrompt, false);
     }
 
-    // ==========================================
-    // OpenAI API 코어 엔진 통신 및 스마트 TTS 필터링
-    // ==========================================
+    // OpenAI API 통신 라우터 및 스마트 TTS 필터링
     async function executeAIEngineDirect(promptText, triggersTTS = false) {
       setChatLoading(true);
       try {
@@ -373,10 +394,10 @@
         const aiAnswer = result.answer;
         appendMessage('AI', aiAnswer); 
 
-        // 오직 우측 하단 [질문하기] 폼을 이용한 공식 통신(triggersTTS = true) 시에만 오디오 낭독 허용
+        // 대화창 폼 제출 루트이며 체크박스 켜져 있을 때만 TTS 생성 단독 유도
         if (triggersTTS && ttsToggle.checked) {
           const cleanText = aiAnswer.replace(/[*#`_\-]/g, '').trim(); 
-          const finalAudioText = getSafeTruncatedText(cleanText, 85); // 단어안전 절삭 처리
+          const finalAudioText = getSafeTruncatedText(cleanText, 85);
 
           const ttsResponse = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
@@ -401,7 +422,7 @@
       }
     }
 
-    // Firebase 파트너 스트림 핸들러
+    // Firebase Auth 스트림 핸들러
     auth.onAuthStateChanged((user) => {
       if (user) {
         currentUser = user;
