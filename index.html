@@ -25,11 +25,11 @@
   <header class="bg-white shadow-sm border-b border-gray-200 h-16 shrink-0 sticky top-0 z-50">
     <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="bg-orange-600 text-white p-2 rounded-lg shadow-md">
+        <div class="bg-blue-600 text-white p-2 rounded-lg shadow-md">
           <i class="fa-solid fa-square-terminal text-xl"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-orange-100 text-orange-800 font-bold px-2 py-0.5 rounded ml-2">v3.5 Claude Core</span></h1>
+          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded ml-2">v3.5 Engine Core</span></h1>
           <p class="text-xs text-gray-500">JS·Python·C++ 3대 언어 브라우저 실시간 가상 인터프리터 머신</p>
         </div>
       </div>
@@ -50,9 +50,9 @@
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col min-h-0 shrink-0">
           <div class="border-b border-gray-100 pb-2.5 mb-3 flex justify-between items-center">
             <h3 class="text-sm font-bold text-gray-900 flex items-center space-x-2">
-              <i class="fa-solid fa-terminal text-orange-500"></i><span>하이브리드 인텔리센스 에디터</span>
+              <i class="fa-solid fa-terminal text-blue-500"></i><span>하이브리드 인텔리센스 에디터</span>
             </h3>
-            <select id="noteLang" class="border border-gray-300 rounded-md px-2 py-1 bg-gray-50 text-xs font-semibold focus:ring-1 focus:ring-orange-500 outline-none">
+            <select id="noteLang" class="border border-gray-300 rounded-md px-2 py-1 bg-gray-50 text-xs font-semibold focus:ring-1 focus:ring-blue-500 outline-none">
               <option value="javascript">JavaScript</option>
               <option value="python">Python</option>
               <option value="cpp">C / C++ (JSCPP)</option>
@@ -60,7 +60,7 @@
           </div>
 
           <div class="space-y-3">
-            <input type="text" id="noteTitle" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-500 outline-none" placeholder="기록용 제목 입력">
+            <input type="text" id="noteTitle" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="기록용 제목 입력">
             
             <div id="editorContainer" class="w-full border border-gray-300 rounded-lg h-44 overflow-hidden bg-gray-900">
               <div id="noteContent" class="w-full h-full"></div>
@@ -73,8 +73,8 @@
                   <button onclick="runNativeCode()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">
                     <i class="fa-solid fa-play mr-0.5"></i> 코드 실행
                   </button>
-                  <button onclick="runGptDiagnosis()" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">
-                    <i class="fa-solid fa-user-doctor mr-0.5"></i> Claude 정밀진단
+                  <button onclick="runGptDiagnosis()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">
+                    <i class="fa-solid fa-user-doctor mr-0.5"></i> GPT 정밀진단
                   </button>
                   <button onclick="clearConsole()" class="bg-gray-800 hover:bg-gray-700 px-1.5 py-0.5 rounded text-[10px] transition">비우기</button>
                 </div>
@@ -84,7 +84,7 @@
               </div>
             </div>
 
-            <button id="btnSaveNote" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded-lg text-xs transition flex items-center justify-center space-x-2">
+            <button id="btnSaveNote" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-xs transition flex items-center justify-center space-x-2">
               <i class="fa-solid fa-cloud-arrow-up"></i><span>사이드바 아카이브에 기록 동기화</span>
             </button>
           </div>
@@ -104,12 +104,12 @@
       <div class="lg:col-span-7 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl min-h-0">
         <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-xl flex justify-between items-center shrink-0">
           <div class="flex items-center space-x-2">
-            <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span></span>
-            <span class="text-sm font-bold text-gray-700">DevPrompt LLM Engine (Claude-3-Haiku)</span>
+            <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>
+            <span class="text-sm font-bold text-gray-700">DevPrompt LLM Engine (gpt-4o-mini)</span>
           </div>
           <div class="flex items-center space-x-3">
             <label class="flex items-center space-x-1 text-xs text-gray-500 cursor-pointer">
-              <input type="checkbox" id="ttsToggle" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500" checked>
+              <input type="checkbox" id="ttsToggle" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
               <span>대화창 답변 낭독(TTS) 켜기</span>
             </label>
             <span class="text-gray-300">|</span>
@@ -119,29 +119,29 @@
           </div>
         </div>
 
-        <div class="hidden flex-wrap gap-4 px-4 py-2 bg-orange-50 border-b border-orange-100 text-xs text-gray-600" id="advancedAudioSettings">
+        <div class="hidden flex-wrap gap-4 px-4 py-2 bg-blue-50 border-b border-gray-100 text-xs text-gray-600" id="advancedAudioSettings">
           <select id="ttsVoice" class="border border-gray-300 rounded p-1 bg-white"><option value="alloy" selected>Alloy</option><option value="echo">Echo</option></select>
           <select id="ttsSpeed" class="border border-gray-300 rounded p-1 bg-white"><option value="1.0" selected>1.0x</option></select>
         </div>
 
-        <div id="audioPlayerContainer" class="hidden px-4 py-2 bg-orange-50 border-b border-orange-100 shrink-0 flex items-center justify-between text-xs">
-          <span class="font-medium text-orange-700"><i class="fa-solid fa-volume-high animate-bounce mr-1"></i> 답변 안전 요약 낭독 중...</span>
+        <div id="audioPlayerContainer" class="hidden px-4 py-2 bg-blue-50 border-b border-blue-100 shrink-0 flex items-center justify-between text-xs">
+          <span class="font-medium text-blue-700"><i class="fa-solid fa-volume-high animate-bounce mr-1"></i> 답변 안전 요약 낭독 중...</span>
           <audio id="globalAudioPlayer" controls class="h-6 w-48"></audio>
         </div>
 
         <div id="chatStream" class="flex-grow p-4 overflow-y-auto space-y-4 text-sm bg-gray-50/50">
           <div class="flex space-x-3 items-start">
-            <div class="bg-orange-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">AI</div>
+            <div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">AI</div>
             <div class="bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100">
-              반갑습니다! **DevPrompt Lab v3.5 앤트로픽 클로드 인터프리터 팩** 공간입니다.<br>
-              이제 에디터 우측 인터페이스와 실시간 지능형 인텔리센스 백그라운드가 독자적인 **Claude 3 Engine**에 의해 구동됩니다.
+              반갑습니다! **DevPrompt Lab v3.5 오픈소스 인터프리터 팩** 공간입니다.<br>
+              이제 Python은 Skulpt 가상 머신이, C/C++은 **JSCPP 가상 엔진**이 실제 메모리 기반 해석을 브라우저 샌드박스에서 직접 수행합니다.
             </div>
           </div>
         </div>
 
         <form id="chatForm" class="p-4 border-t border-gray-200 bg-white rounded-b-xl flex space-x-3 shrink-0">
-          <input type="text" id="chatQuestion" required class="flex-grow border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="AI에게 질문을 작성하세요...">
-          <button type="submit" id="btnChatSubmit" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-xl px-4 transition flex items-center space-x-2 shrink-0">
+          <input type="text" id="chatQuestion" required class="flex-grow border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="AI에게 질문을 작성하세요...">
+          <button type="submit" id="btnChatSubmit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl px-4 transition flex items-center space-x-2 shrink-0">
             <span>질문하기</span><i class="fa-regular fa-paper-plane"></i>
           </button>
         </form>
@@ -163,15 +163,15 @@
         <label class="block text-sm font-semibold text-gray-700 mb-1">비밀번호</label>
         <input type="password" id="authPassword" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none" placeholder="••••••••">
       </div>
-      <button type="submit" id="btnAuthSubmit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-lg shadow-md transition">로그인</button>
+      <button type="submit" id="btnAuthSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition">로그인</button>
     </form>
     <div class="text-center mt-6 pt-6 border-t border-gray-100">
-      <button id="btnToggleAuth" class="text-sm text-orange-600 hover:underline font-medium">계정이 없으신가요? 회원가입하기</button>
+      <button id="btnToggleAuth" class="text-sm text-blue-600 hover:underline font-medium">계정이 없으신가요? 회원가입하기</button>
     </div>
   </section>
 
   <footer class="bg-white border-t border-gray-200 py-3 text-center text-[11px] text-gray-400 shrink-0">
-    <p>© 2026 DevPrompt Lab Dashboard. High-Performance Claude & Virtual Interpreter Environment.</p>
+    <p>© 2026 DevPrompt Lab Dashboard. High-Performance Virtual Interpreter Environment.</p>
   </footer>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -258,7 +258,7 @@
         value: initialValue, language: lang, theme: "vs-dark", automaticLayout: true, minimap: { enabled: false }, fontSize: 12
       });
 
-      // 미완성 커서 타겟형 Claude 스마트 어시스트 스케줄러
+      // 미완성 커서 타겟형 GPT 스마트 어시스트 스케줄러
       editorInstance.onDidChangeModelContent(() => {
         const selectedLang = noteLang.value;
         if (selectedLang === 'javascript') return;
@@ -274,7 +274,7 @@
 
           if (textBeforeCursor.trim().length < 2) return;
 
-          consoleOutput.innerHTML = `<span class="text-orange-400 text-[10px]"><i class="fa-solid fa-spinner animate-spin"></i> 실시간 커서 인텔리센스 매핑 중...</span>`;
+          consoleOutput.innerHTML = `<span class="text-blue-400 text-[10px]"><i class="fa-solid fa-spinner animate-spin"></i> 실시간 커서 인텔리센스 매핑 중...</span>`;
 
           try {
             const response = await fetch(APPS_SCRIPT_URL, {
@@ -286,7 +286,7 @@
             });
             const result = await response.json();
             if (result.answer) {
-              consoleOutput.innerHTML = `<span class="text-orange-400 font-bold">[Claude IntelliSense 추천]</span><br><span class="text-white">${escapeHtml(result.answer)}</span>`;
+              consoleOutput.innerHTML = `<span class="text-purple-400 font-bold">[GPT IntelliSense 추천]</span><br><span class="text-white">${escapeHtml(result.answer)}</span>`;
             }
           } catch(e) {
             consoleOutput.innerHTML = `<span class="text-gray-500">// 가상 어시스턴트 대기 중</span>`;
@@ -343,6 +343,8 @@
         consoleOutput.innerHTML = "<span class='text-gray-500'>[JSCPP 가상 머신 엔진 가동 중...]</span><br>";
         try {
           let cppOutputBuffer = "";
+          
+          // 공식 문서 스펙 기준 입출력(stdio) 감쇄 인터페이스 설정
           const config = {
             stdio: {
               write: function(ch) {
@@ -352,11 +354,13 @@
             unsigned_overflow: "warn"
           };
           
+          // 브라우저 윈도우 전역에 선언된 정식 JSCPP 인스턴스 검증
           const nativeCppEngine = window.JSCPP || JSCPP;
           if (!nativeCppEngine) {
             throw new Error("브라우저 메모리에 JSCPP 엔진이 로드되지 않았습니다. CDN 주소를 확인하세요.");
           }
 
+          // 메인 API 호출 실행
           const exitCode = nativeCppEngine.run(code, "", config);
           
           consoleOutput.innerHTML += cppOutputBuffer.length === 0 
@@ -370,19 +374,19 @@
       }
     }
 
-    // Claude 정밀 진단 전용 스페이스
+    // GPT 정밀 진단 전용 스페이스
     async function runGptDiagnosis() {
       if(!editorInstance) return;
       const code = editorInstance.getValue();
       const lang = noteLang.value;
 
-      consoleOutput.innerHTML = `<span class="text-orange-400 font-bold"><i class="fa-solid fa-circle-nodes animate-pulse"></i> 코드를 분석용 Claude 컨텍스트 서버로 전송 중...</span>`;
+      consoleOutput.innerHTML = `<span class="text-yellow-400 font-bold"><i class="fa-solid fa-circle-nodes animate-pulse"></i> 코드를 분석용 GPT 컨텍스트 서버로 전송 중...</span>`;
       const diagPrompt = `[정밀 진단 요청]\n언어: ${lang}\n코드:\n${code}\n\n위 코드의 런타임 오류 가능성이나 구조적 결함을 개발자 관점에서 딱 2줄로 리팩토링 포인트만 핵심 정리해줘.`;
       
       await executeAIEngineDirect(diagPrompt, false);
     }
 
-    // Claude API 통신 라우터 및 스마트 TTS 필터링
+    // OpenAI API 통신 라우터 및 스마트 TTS 필터링
     async function executeAIEngineDirect(promptText, triggersTTS = false) {
       setChatLoading(true);
       try {
@@ -479,11 +483,11 @@
         keys.forEach(key => {
           const item = data[key];
           const card = document.createElement('div');
-          card.className = "bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-400 transition space-y-2 relative";
+          card.className = "bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-blue-400 transition space-y-2 relative";
           card.innerHTML = `
             <div class="flex items-start justify-between">
               <div class="truncate pr-4">
-                <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 mb-1 cursor-pointer" onclick="restoreCodeToWorkspace('${key}')">
+                <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 mb-1 cursor-pointer" onclick="restoreCodeToWorkspace('${key}')">
                   ${item.lang.toUpperCase()} (불러오기)
                 </span>
                 <h4 class="text-xs font-bold text-gray-800 truncate">${escapeHtml(item.title)}</h4>
@@ -519,8 +523,8 @@
     function appendMessage(sender, text) {
       const msgWrap = document.createElement('div');
       msgWrap.className = sender === 'USER' ? "flex space-x-3 items-start justify-end" : "flex space-x-3 items-start";
-      let badge = sender === 'USER' ? `<div class="bg-gray-800 text-white p-1.5 rounded-lg text-xs font-bold order-2 shrink-0">MY</div>` : `<div class="bg-orange-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">AI</div>`;
-      let contentClass = sender === 'USER' ? "bg-orange-600 text-white p-3.5 rounded-2xl rounded-tr-none max-w-[85%] shadow-md order-1" : "bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100";
+      let badge = sender === 'USER' ? `<div class="bg-gray-800 text-white p-1.5 rounded-lg text-xs font-bold order-2 shrink-0">MY</div>` : `<div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">AI</div>`;
+      let contentClass = sender === 'USER' ? "bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-none max-w-[85%] shadow-md order-1" : "bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100";
       
       if(sender === 'ERROR') {
         badge = `<div class="bg-red-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">ERR</div>`;
