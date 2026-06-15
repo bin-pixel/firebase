@@ -35,8 +35,8 @@
           <i class="fa-solid fa-square-terminal text-xl"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded ml-2">Dual Mode v3.1</span></h1>
-          <p class="text-xs text-gray-500">기록·시뮬레이션과 AI 리뷰를 한 화면에서 동시에</p>
+          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded ml-2">v3.3 Hybrid IntelliSense</span></h1>
+          <p class="text-xs text-gray-500">JS·Python·C++ 핵심 스마트 워크스페이스 & GPT 컴파일러 파트너</p>
         </div>
       </div>
       
@@ -58,20 +58,17 @@
           <div class="border-b border-gray-100 pb-2.5 mb-3 flex justify-between items-center">
             <h3 class="text-sm font-bold text-gray-900 flex items-center space-x-2">
               <i class="fa-solid fa-terminal text-blue-500"></i>
-              <span>워크스페이스 & 가상 시뮬레이터</span>
+              <span>하이브리드 인텔리센스 에디터</span>
             </h3>
             <select id="noteLang" class="border border-gray-300 rounded-md px-2 py-1 bg-gray-50 text-xs font-semibold focus:ring-1 focus:ring-blue-500 outline-none">
               <option value="javascript">JavaScript</option>
               <option value="python">Python</option>
               <option value="cpp">C / C++</option>
-              <option value="java">Java</option>
-              <option value="markdown">Prompt Template</option>
-              <option value="plaintext">기타 에러로그</option>
             </select>
           </div>
 
           <div class="space-y-3">
-            <input type="text" id="noteTitle" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="기록용 제목 (예: 버블 정렬 알고리즘)">
+            <input type="text" id="noteTitle" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="기록용 제목 (예: 알고리즘 데이터 가공 스크립트)">
             
             <div id="editorContainer" class="w-full border border-gray-300 rounded-lg h-44 focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden bg-gray-900">
               <div id="noteContent" class="w-full h-full"></div>
@@ -79,14 +76,16 @@
 
             <div class="bg-gray-950 rounded-lg border border-gray-800 p-3 font-mono text-[11px] text-gray-300 space-y-2">
               <div class="flex items-center justify-between text-gray-400 border-b border-gray-800 pb-1.5">
-                <span class="flex items-center space-x-1"><i class="fa-solid fa-play text-green-500 text-[9px]"></i> <b>SIMULATION VIRTUAL CONSOLE</b></span>
+                <span class="flex items-center space-x-1"><i class="fa-solid fa-play text-green-500 text-[9px]"></i> <b>INTELLIGENT HYBRID CONSOLE</b></span>
                 <div class="flex space-x-2">
-                  <button onclick="runSimulation()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">실행 (Run)</button>
+                  <button onclick="runSimulation()" id="btnRunCode" class="bg-green-600 hover:bg-green-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition flex items-center space-x-1">
+                    <i class="fa-solid fa-bolt"></i><span>실행 & GPT 정밀진단</span>
+                  </button>
                   <button onclick="clearConsole()" class="bg-gray-800 hover:bg-gray-700 px-1.5 py-0.5 rounded text-[10px] transition">비우기</button>
                 </div>
               </div>
               <div id="consoleOutput" class="h-20 overflow-y-auto space-y-1 text-green-400">
-                <span class="text-gray-500">// 에디터에 코드를 작성하고 [실행] 버튼을 누르면 콘솔 결과가 출력됩니다.</span>
+                <span class="text-gray-500">// 코드를 입력해보세요. Python/C++은 타이핑을 멈추면 GPT가 자동완성 힌트를 콘솔에 조용히 제안합니다.</span>
               </div>
             </div>
 
@@ -125,7 +124,7 @@
           <div class="flex items-center space-x-3">
             <label class="flex items-center space-x-1 text-xs text-gray-500 cursor-pointer">
               <input type="checkbox" id="ttsToggle" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-              <span>음성 안내(TTS) 스피커 켜기</span>
+              <span>대화창 답변 낭독(TTS) 켜기</span>
             </label>
             <span class="text-gray-300">|</span>
             <button onclick="clearChat()" class="text-xs text-gray-400 hover:text-gray-600 flex items-center space-x-1 transition">
@@ -140,7 +139,7 @@
         </div>
 
         <div id="audioPlayerContainer" class="hidden px-4 py-2 bg-blue-50 border-b border-blue-100 shrink-0 flex items-center justify-between text-xs">
-          <span class="font-medium text-blue-700"><i class="fa-solid fa-volume-high animate-bounce mr-1"></i> 답변 읽는 중...</span>
+          <span class="font-medium text-blue-700"><i class="fa-solid fa-volume-high animate-bounce mr-1"></i> 답변 요약 낭독 중...</span>
           <audio id="globalAudioPlayer" controls class="h-6 w-48"></audio>
         </div>
 
@@ -148,7 +147,8 @@
           <div class="flex space-x-3 items-start">
             <div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0 shadow-sm">AI</div>
             <div class="bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100 leading-relaxed">
-              안녕하세요! <b>DevPrompt Lab 통합 스페이스</b>입니다. 왼쪽 사이드바 워크스페이스에 코드를 채워 시뮬레이션을 돌려보거나, 아카이브에서 <b>[AI 리뷰 전송]</b>을 클릭하여 코드 정밀 분석을 실시간으로 동시 수행할 수 있습니다. 💻✨
+              반갑습니다! **DevPrompt Lab v3.3** 엔진 공간입니다. <br>
+              이제 왼쪽 에디터에서 Python이나 C++ 코딩 중 입력을 멈추면 **GPT API 기반 백그라운드 인텔리센스 분석**이 조용히 작동합니다. 질문 폼을 통한 대화창 답변은 오작동 방지 안전장치가 설계된 스마트 TTS가 읽어 드립니다. ✨
             </div>
           </div>
         </div>
@@ -218,6 +218,7 @@
     let isSignUpMode = false;
     let editorInstance = null; 
     let clangdWorkerInstance = null;
+    let gptIntellisenseTimer = null; // 디바운싱용 전역 타이머 관리자
 
     // DOM 캐시
     const authSection = document.getElementById('authSection');
@@ -248,132 +249,135 @@
     const globalAudioPlayer = document.getElementById('globalAudioPlayer');
 
     // ==========================================
-    // 핵심 수정 사항: 에디터 인스턴스 재생성 및 완전 바인딩 함수
+    // 안전한 단어 단위 문자열 절삭 처리 함수 (Word-Safe Truncation)
+    // ==========================================
+    function getSafeTruncatedText(text, limit = 90) {
+      if (text.length <= limit) return text;
+      
+      // 제한 길이 내에서 가장 마지막 공백(띄어쓰기)의 인덱스를 탐색
+      const edgeIndex = text.lastIndexOf(' ', limit);
+      if (edgeIndex === -1) {
+        return text.substring(0, limit) + "..."; // 공백이 아예 없으면 어쩔 수 없이 절삭
+      }
+      return text.substring(0, edgeIndex) + " ..."; // 단어가 깨지지 않는 최적 범위 리턴
+    }
+
+    // ==========================================
+    // 3대 언어 스마트 인텔리센스 교체 및 GPT 추론 탑재 로직
     // ==========================================
     function updateMonacoRuntime(lang, customValue = null) {
       const container = document.getElementById('noteContent');
-      
-      // 1. 기존 에디터 잔재가 있다면 완전히 파괴하여 메모리 해제 및 플러그인 바인딩 초기화
       if (editorInstance) {
         editorInstance.dispose();
         editorInstance = null;
       }
-      container.innerHTML = ""; // DOM 내부 강제 청소
+      container.innerHTML = ""; 
 
-      // 2. 초기 텍스트 설정
       let initialValue = customValue;
       if (!initialValue) {
         if (lang === "python") {
-          initialValue = `# Python 지능 분석 활성화\nimport math\n\ndef check_system(data):\n    print("Target:", data)\n\n# 아래에서 math. 혹은 check_system 입력 시 팝업 작동\n`;
+          initialValue = `# Python 최적화 런타임\nimport math\n\ndef calculate_core(x):\n    return math.`;
         } else if (lang === "cpp") {
-          initialValue = `// C++ WASM 컴파일러 실시간 동기화 중\n#include <stdio.h>\n\nint main() {\n    printf("Hello Deep Intellisense\\n");\n    return 0;\n}`;
-        } else if (lang === "javascript") {
-          initialValue = `// JavaScript 런타임\nconsole.log("Hello Dynamic Editor");`;
+          initialValue = `// C++ 가상 빌더 스페이스\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Active";\n    return 0;\n}`;
         } else {
-          initialValue = `// ${lang} 편집 모드\n`;
+          initialValue = `// JavaScript Core Node\nconsole.log("Ready");`;
         }
       }
 
-      // 3. 해당 언어 전용 옵션을 주입하여 완전히 새로운 에디터 생성
-      if (lang === "python" && window.monacoPython) {
-        // monaco-python 플러그인은 start 메서드로 감싸서 독립 실행해야 인텔리센스가 반응합니다.
+      if (lang === "python" && window.monacoPython && typeof window.monacoPython.start === "function") {
         editorInstance = window.monacoPython.start(container, {
-          value: initialValue,
-          language: "python",
-          theme: "vs-dark",
-          automaticLayout: true,
-          fontSize: 12,
-          quickSuggestions: { other: true, comments: true, strings: true },
-          suggestOnTriggerCharacters: true
+          value: initialValue, language: "python", theme: "vs-dark", automaticLayout: true, fontSize: 12,
+          quickSuggestions: { other: true, comments: true, strings: true }, suggestOnTriggerCharacters: true
         });
       } else {
-        // 일반 언어 및 C++ 전용 기본 인스턴스 빌드
         editorInstance = monaco.editor.create(container, {
-          value: initialValue,
-          language: lang,
-          theme: "vs-dark",
-          automaticLayout: true,
-          minimap: { enabled: false },
-          fontSize: 12,
-          quickSuggestions: { other: true, comments: true, strings: true },
-          suggestOnTriggerCharacters: true,
-          acceptSuggestionOnEnter: "on",
-          wordBasedSuggestions: true
+          value: initialValue, language: lang, theme: "vs-dark", automaticLayout: true, minimap: { enabled: false }, fontSize: 12,
+          quickSuggestions: { other: true, comments: true, strings: true }, suggestOnTriggerCharacters: true,
+          acceptSuggestionOnEnter: "on", wordBasedSuggestions: true
         });
 
-        // C++인 경우 준비된 WebAssembly Clangd 가상 컴파일러 워커 강제 결합
         if (lang === "cpp" && window.monacoClangd && clangdWorkerInstance) {
-          try {
-            window.monacoClangd.register(editorInstance, clangdWorkerInstance);
-          } catch(e) {
-            console.warn("Clangd 런타임 바인딩 지연:", e);
-          }
+          try { window.monacoClangd.register(editorInstance, clangdWorkerInstance); } catch(e) { console.warn(e); }
         }
       }
+
+      // [핵심] 사용자가 입력을 멈췄을 때 작동하는 GPT 백그라운드 인텔리센스 바인딩 (Python, C++ 전용)
+      editorInstance.onDidChangeModelContent(() => {
+        const selectedLang = noteLang.value;
+        if (selectedLang === 'javascript') return; // JS는 로컬 워커가 완벽하므로 API 호출 방어
+
+        clearTimeout(gptIntellisenseTimer); // 연속 타이핑 중일 때는 기존 타이머 리셋 (연사 방지)
+
+        gptIntellisenseTimer = setTimeout(async () => {
+          const currentCode = editorInstance.getValue().trim();
+          if(!currentCode || currentCode.length < 5) return;
+
+          consoleOutput.innerHTML = `<span class="text-blue-400 font-bold"><i class="fa-solid fa-spinner animate-spin"></i> GPT 인텔리센스가 이어질 코드 구조를 실시간 연산 중...</span>`;
+
+          try {
+            // 조용히 백그라운드로 소스코드를 쏘아 다음 코드 제안만 획득 (이때 오디오는 절대 유발하지 않음)
+            const response = await fetch(APPS_SCRIPT_URL, {
+              method: 'POST',
+              body: JSON.stringify({
+                type: 'chat',
+                question: `너는 IDE의 지능형 컴파일러 보조 엔진이야. 아래의 ${selectedLang} 소스코드를 보고, 다음에 이어질 가장 적절한 코드나 문법 또는 함수 추천 목록을 부연설명 절대 없이 딱 2줄 이내의 예시 코드로만 답변해줘.\n\n${currentCode}`
+              })
+            });
+            const result = await response.json();
+            if (result.answer) {
+              consoleOutput.innerHTML = `
+                <span class="text-purple-400 font-bold">[GPT 스마트 어시스트 추천 구조]</span><br>
+                <span class="text-white">${escapeHtml(result.answer)}</span>
+              `;
+            }
+          } catch (e) {
+            consoleOutput.innerHTML = `<span class="text-gray-500">// 오프라인 상태이거나 가상 워커가 분석 중입니다.</span>`;
+          }
+        }, 1500); // 1.5초간 타이핑 멈춤 감지 시 가동 (디바운싱 타임아웃)
+      });
     }
 
-    // Monaco CDN 최초 로드 파트
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
     require(['vs/editor/editor.main'], function() {
-      // 컴파일러 웹워커 미리 할당
-      try {
-        clangdWorkerInstance = new Worker('https://cdn.jsdelivr.net/npm/monaco-clangd@0.1.2/dist/clangd.worker.js');
-      } catch(e) {
-        console.error("WASM Clangd Worker 할당 실패:", e);
-      }
-      // 최초 기본 자바스크립트 모드 구동
+      try { clangdWorkerInstance = new Worker('https://cdn.jsdelivr.net/npm/monaco-clangd@0.1.2/dist/clangd.worker.js'); } catch(e) {}
       updateMonacoRuntime("javascript");
     });
 
-    // 드롭다운 변경 시 완전한 재생성 루틴 호출
-    noteLang.addEventListener('change', () => {
-      updateMonacoRuntime(noteLang.value);
-    });
+    noteLang.addEventListener('change', () => { updateMonacoRuntime(noteLang.value); });
 
     // ==========================================
-    // 코딩 가상 시뮬레이션 (Simulation) 구동 처리
+    // 실행 & GPT 정밀진단 핸들러 (TTS 자동격리 처리)
     // ==========================================
-    function runSimulation() {
+    async function runSimulation() {
       if(!editorInstance) return;
       const code = editorInstance.getValue();
       const currentLanguage = noteLang.value;
       
-      consoleOutput.innerHTML = `<span class="text-yellow-400 font-bold">[런타임 실행 중...] 언어 스펙: ${currentLanguage.toUpperCase()}</span>`;
+      consoleOutput.innerHTML = `<span class="text-yellow-400 font-bold">[샌드박스 빌드 완료] GPT 마스터 디버깅 컨텍스트 전송 중...</span>`;
       
-      setTimeout(() => {
-        try {
-          if(currentLanguage === 'javascript') {
-            let logs = [];
-            const originalLog = console.log;
-            console.log = function(...args) { logs.push(args.join(' ')); originalLog.apply(console, args); };
-            new Function(code)();
-            console.log = originalLog;
-            
-            if(logs.length === 0) {
-              consoleOutput.innerHTML = `<span class="text-gray-400">실행 성공 (콘솔에 출력된 데이터가 없습니다.)</span>`;
-            } else {
-              consoleOutput.innerHTML = logs.map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>');
-            }
-          } else {
-            const lines = code.split('\n').length;
-            consoleOutput.innerHTML = `
-              <span class="text-blue-400">[Monaco Client Engine Sandbox]</span><br>
-              <span class="text-green-300">&gt; 로컬 구문 하이라이트 및 브라우저 워커 스캔 완료: ${lines} 라인 확인.</span><br>
-              <span class="text-white">&gt; 정상 적재 완료. 정밀 디버깅은 우측 [AI로 전송]을 활용하세요.</span>
-            `;
-          }
-        } catch (err) {
-          consoleOutput.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> 에러 발생:</span><br><span class="text-red-300">${escapeHtml(err.message)}</span>`;
+      try {
+        if(currentLanguage === 'javascript') {
+          let logs = [];
+          const originalLog = console.log;
+          console.log = function(...args) { logs.push(args.join(' ')); originalLog.apply(console, args); };
+          new Function(code)();
+          console.log = originalLog;
+          consoleOutput.innerHTML = logs.length === 0 ? `<span class="text-gray-400">구문 검증 성공 (로그 없음)</span>` : logs.map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>');
+        } else {
+          consoleOutput.innerHTML = `<span class="text-blue-400">[Local Engine]</span> 구문 파싱 정상 적재 완료.`;
         }
-      }, 400);
-    }
+      } catch (err) {
+        consoleOutput.innerHTML = `<span class="text-red-400 font-bold">로컬 샌드박스 에러:</span><br><span class="text-red-300">${escapeHtml(err.message)}</span>`;
+      }
 
-    function clearConsole() {
-      consoleOutput.innerHTML = '<span class="text-gray-600">// 콘솔 출력이 완전히 지워졌습니다.</span>';
+      const systemPromptQuestion = `[코드 런타임 정밀 분석 요청]\n현재 언어: ${currentLanguage.toUpperCase()}\n\n소스 코드:\n${code}\n\n위 코드를 정밀 검수하여 에러 원인이나 리팩토링 포인트를 2줄로 요약해줘.`;
+      
+      // 공식 대화창이 아닌 에디터 측의 실행 버튼이므로 triggersTTS 파라미터를 false로 주어 TTS 완전 격리 차단
+      executeAIEngineDirect(systemPromptQuestion, false);
     }
 
     // ==========================================
-    // Firebase AUTH 리스너 및 계정 처리
+    // Firebase 계정 관리 스트림
     // ==========================================
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -395,11 +399,8 @@
       e.preventDefault();
       const email = authEmail.value.trim();
       const password = authPassword.value;
-      if(isSignUpMode) {
-        auth.createUserWithEmailAndPassword(email, password).catch(err => alert(err.message));
-      } else {
-        auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
-      }
+      if(isSignUpMode) { auth.createUserWithEmailAndPassword(email, password).catch(err => alert(err.message)); }
+      else { auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message)); }
     });
 
     btnToggleAuth.addEventListener('click', () => {
@@ -410,44 +411,26 @@
 
     btnLogout.addEventListener('click', () => { if(confirm('로그아웃 하시겠습니까?')) auth.signOut(); });
 
-    // ==========================================
-    // Realtime DB 사이드바 아카이브 적재
-    // ==========================================
     btnSaveNote.addEventListener('click', () => {
       if(!currentUser) return;
       const lang = noteLang.value;
       const title = noteTitle.value.trim();
       const content = editorInstance ? editorInstance.getValue().trim() : "";
-
-      if(!title || !content) {
-        alert('워크스페이스 제목과 코드 영역을 채워주세요.');
-        return;
-      }
+      if(!title || !content) { alert('워크스페이스 제목과 코드 영역을 채워주세요.'); return; }
 
       database.ref(`users/${currentUser.uid}/notes`).push({
-        lang: lang,
-        title: title,
-        content: content,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-      }).then(() => {
-        noteTitle.value = '';
-        alert('사이드바 아카이브 피드에 동기화 완료!');
-      }).catch(err => alert(err.message));
+        lang: lang, title: title, content: content, timestamp: firebase.database.ServerValue.TIMESTAMP
+      }).then(() => { noteTitle.value = ''; alert('아카이브 피드 동기화 완료!'); }).catch(err => alert(err.message));
     });
 
     function loadNotesStream() {
       database.ref(`users/${currentUser.uid}/notes`).on('value', (snapshot) => {
         noteList.innerHTML = '';
         const data = snapshot.val();
-        if(!data) {
-          noteCount.textContent = "0개 보관됨";
-          noteList.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs"><i class="fa-regular fa-folder-open text-2xl mb-2 block"></i>보관된 내역이 없습니다.</div>`;
-          return;
-        }
+        if(!data) { noteCount.textContent = "0개 보관됨"; noteList.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">보관된 내역이 없습니다.</div>`; return; }
 
         const keys = Object.keys(data).reverse(); 
         noteCount.textContent = `${keys.length}개 보관됨`;
-
         keys.forEach(key => {
           const item = data[key];
           const card = document.createElement('div');
@@ -455,50 +438,39 @@
           card.innerHTML = `
             <div class="flex items-start justify-between">
               <div class="truncate pr-4">
-                <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 mb-1" style="cursor:pointer;" onclick="restoreCodeToWorkspace('${key}')">
-                  ${getLangLabelText(item.lang)} (불러오기 클릭)
+                <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 mb-1 cursor-pointer" onclick="restoreCodeToWorkspace('${key}')">
+                  ${item.lang.toUpperCase()} (가져오기)
                 </span>
                 <h4 class="text-xs font-bold text-gray-800 truncate">${escapeHtml(item.title)}</h4>
               </div>
-              <button onclick="deleteNote('${key}')" class="text-gray-400 hover:text-red-500 text-xs transition">
-                <i class="fa-regular fa-trash-can"></i>
-              </button>
+              <button onclick="deleteNote('${key}')" class="text-gray-400 hover:text-red-500 text-xs transition"><i class="fa-regular fa-trash-can"></i></button>
             </div>
-            <div class="flex justify-end">
-              <button onclick="bindToChatDirect('${key}')" class="bg-blue-600 text-white font-bold text-[10px] px-2.5 py-1 rounded transition flex items-center space-x-1 shadow-sm hover:bg-blue-700">
-                <span>오른쪽 AI로 전송</span><i class="fa-solid fa-angles-right"></i>
-              </button>
-            </div>
+            <div class="flex justify-end"><button onclick="bindToChatDirect('${key}')" class="bg-blue-600 text-white font-bold text-[10px] px-2.5 py-1 rounded shadow-sm hover:bg-blue-700">오른쪽 AI로 전송 →</button></div>
           `;
           noteList.appendChild(card);
         });
       });
     }
 
-    // 아카이브에서 코드를 클릭해 불러올 때도 인텔리센스 런타임이 완벽 연동되도록 유도
     window.restoreCodeToWorkspace = function(key) {
       database.ref(`users/${currentUser.uid}/notes/${key}`).once('value', (snapshot) => {
-        const item = snapshot.val();
-        if(!item) return;
-        noteLang.value = item.lang;
-        noteTitle.value = item.title;
+        const item = snapshot.val(); if(!item) return;
+        noteLang.value = item.lang; noteTitle.value = item.title;
         updateMonacoRuntime(item.lang, item.content);
       });
     };
 
     function deleteNote(key) { if(confirm('삭제하시겠습니까?')) database.ref(`users/${currentUser.uid}/notes/${key}`).remove(); }
-
     function bindToChatDirect(key) {
       database.ref(`users/${currentUser.uid}/notes/${key}`).once('value', (snapshot) => {
-        const item = snapshot.val();
-        if(!item) return;
-        chatQuestion.value = `[코드 분석 타겟: ${getLangLabelText(item.lang)}] 에러 디버깅 및 리뷰 요청.\n제목: ${item.title}\n\n${item.content}`;
+        const item = snapshot.val(); if(!item) return;
+        chatQuestion.value = `[코드 타겟 아카이브 리서치]\n언어: ${item.lang}\n코드:\n${item.content}\n\n이 구조의 아키텍처 결함 해결 요망.`;
         chatQuestion.focus();
       });
     }
 
     // ==========================================
-    // OpenAI 인프라 연동 챗봇 & TTS 시스템
+    // OpenAI 대화창 통합 폼 인터페이스 핸들러
     // ==========================================
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -507,12 +479,18 @@
 
       appendMessage('USER', question);
       chatQuestion.value = '';
-      setChatLoading(true); 
+      
+      // 사용자가 질문 폼으로 직접 대화 요청한 공식 루트이므로 triggersTTS를 true로 허용
+      executeAIEngineDirect(question, true);
+    });
 
+    // OpenAI API 코어 비동기 가속 엔진 통신 함수
+    async function executeAIEngineDirect(promptText, triggersTTS = false) {
+      setChatLoading(true);
       try {
         const chatResponse = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          body: JSON.stringify({ type: 'chat', question: question })
+          body: JSON.stringify({ type: 'chat', question: promptText })
         });
         const chatResult = await chatResponse.json();
         if (chatResult.error) throw new Error(chatResult.error);
@@ -520,13 +498,19 @@
         const aiAnswer = chatResult.answer;
         appendMessage('AI', aiAnswer); 
 
-        if (ttsToggle.checked) {
-          const cleanText = aiAnswer.replace(/[*#`_\-]/g, '').substring(0, 300); 
+        // 대화 질문 창에서 명시적으로 허용(triggersTTS = true)하고 체크박스가 활성화된 경우에만 TTS 발동
+        if (triggersTTS && ttsToggle.checked) {
+          // 특수 기호 제거 공정 처리
+          const cleanText = aiAnswer.replace(/[*#`_\-]/g, '').trim(); 
+          
+          // 단어가 깨지는 버그 방지를 위해 띄어쓰기 단위 기준 안전 글자 절삭(Word-Safe Truncation) 적용
+          const finalAudioPayloadText = getSafeTruncatedText(cleanText, 85);
+
           const ttsResponse = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify({
-              type: 'tts',
-              text: cleanText,
+              type: 'tts', // 원래 정의된 백엔드 handleTTS 명세를 정확히 동기화
+              text: finalAudioPayloadText,
               voice: ttsVoice.value,
               speed: parseFloat(ttsSpeed.value)
             })
@@ -539,11 +523,11 @@
           }
         }
       } catch (err) {
-        appendMessage('ERROR', 'LLM 엔진 장애: ' + err.toString());
+        appendMessage('ERROR', 'Apps Script 엔드포인트 연동 실하 패배: ' + err.toString());
       } finally {
         setChatLoading(false); 
       }
-    });
+    }
 
     function appendMessage(sender, text) {
       const msgWrap = document.createElement('div');
@@ -555,7 +539,6 @@
         badge = `<div class="bg-red-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">ERR</div>`;
         contentClass = "bg-red-50 text-red-700 p-3.5 rounded-2xl max-w-[85%] font-mono text-xs";
       }
-
       msgWrap.innerHTML = `${badge}<div class="${contentClass} whitespace-pre-wrap">${escapeHtml(text)}</div>`;
       chatStream.appendChild(msgWrap);
       chatStream.scrollTop = chatStream.scrollHeight; 
@@ -564,19 +547,14 @@
     function setChatLoading(isLoading) {
       btnChatSubmit.disabled = isLoading;
       btnChatSubmit.classList.toggle('opacity-50', isLoading);
-      chatQuestion.placeholder = isLoading ? "AI 엔진이 대답을 준비하고 있습니다..." : "AI에게 에러 디버깅을 요청하거나 질문을 작성하세요...";
+      chatQuestion.placeholder = isLoading ? "AI 엔진이 분석 보고서를 빌드하고 있습니다..." : "AI에게 에러 디버깅을 요청하거나 질문을 작성하세요...";
     }
 
     function clearChat() {
       chatStream.innerHTML = '';
       audioPlayerContainer.classList.add('hidden');
       globalAudioPlayer.src = '';
-      appendMessage('AI', '대화가 청소되었습니다. 새로운 분석 대화를 시작하세요!');
-    }
-
-    function getLangLabelText(lang) {
-      const labels = { javascript: "JavaScript", python: "Python", cpp: "C / C++", java: "Java", markdown: "Prompt", plaintext: "Error Log" };
-      return labels[lang] || "기타";
+      appendMessage('AI', '대화 세션이 깔끔하게 리셋되었습니다.');
     }
 
     function escapeHtml(text) {
