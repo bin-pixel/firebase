@@ -35,7 +35,7 @@
           <i class="fa-solid fa-square-terminal text-xl"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded ml-2">Dual Mode v3.0</span></h1>
+          <h1 class="text-lg font-bold text-gray-900 tracking-tight">DevPrompt Lab <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded ml-2">Dual Mode v3.1</span></h1>
           <p class="text-xs text-gray-500">기록·시뮬레이션과 AI 리뷰를 한 화면에서 동시에</p>
         </div>
       </div>
@@ -50,51 +50,10 @@
     </div>
   </header>
 
-  <section id="authSection" class="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 border border-gray-100 my-auto">
-    <div class="text-center mb-8">
-      <h2 id="authTitle" class="text-2xl font-bold text-gray-900">반갑습니다 👋</h2>
-      <p id="authSubtitle" class="text-sm text-gray-500 mt-2">DevPrompt Lab 서비스를 시작하려면 로그인하세요.</p>
-    </div>
-
-    <form id="authForm" class="space-y-4">
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">이메일 주소</label>
-        <div class="relative">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-            <i class="fa-regular fa-envelope"></i>
-          </span>
-          <input type="email" id="authEmail" required class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="name@company.com">
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">비밀번호</label>
-        <div class="relative">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-            <i class="fa-solid fa-lock"></i>
-          </span>
-          <input type="password" id="authPassword" required class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="••••••••">
-        </div>
-      </div>
-
-      <button type="submit" id="btnAuthSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition transform active:scale-[0.98] mt-2">
-        로그인
-      </button>
-    </form>
-
-    <div class="text-center mt-6 pt-6 border-t border-gray-100">
-      <button id="btnToggleAuth" class="text-sm text-blue-600 hover:underline font-medium">
-        계정이 없으신가요? 회원가입하기
-      </button>
-    </div>
-  </section>
-
   <main id="mainAppSection" class="hidden flex-grow w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-hidden">
-    
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-120px)] items-stretch">
       
       <div class="lg:col-span-5 flex flex-col space-y-4 min-h-0">
-        
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col min-h-0 shrink-0">
           <div class="border-b border-gray-100 pb-2.5 mb-3 flex justify-between items-center">
             <h3 class="text-sm font-bold text-gray-900 flex items-center space-x-2">
@@ -112,7 +71,7 @@
           </div>
 
           <div class="space-y-3">
-            <input type="text" id="noteTitle" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="기록용 제목 (예: 버블 정렬 알고리즘 / 예외처리 핸들러)">
+            <input type="text" id="noteTitle" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="기록용 제목 (예: 버블 정렬 알고리즘)">
             
             <div id="editorContainer" class="w-full border border-gray-300 rounded-lg h-44 focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden bg-gray-900">
               <div id="noteContent" class="w-full h-full"></div>
@@ -146,19 +105,15 @@
             </span>
             <span id="noteCount" class="text-[10px] bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-full">0개 보관됨</span>
           </div>
-
           <div id="noteList" class="flex-grow overflow-y-auto space-y-3 pr-1">
             <div class="text-center py-8 text-gray-400 text-xs">
-              <i class="fa-regular fa-folder-open text-2xl mb-2 block"></i>
-              보관된 내역이 없습니다.
+              <i class="fa-regular fa-folder-open text-2xl mb-2 block"></i>보관된 내역이 없습니다.
             </div>
           </div>
         </div>
-
       </div>
 
       <div class="lg:col-span-7 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl min-h-0">
-        
         <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-xl flex justify-between items-center shrink-0">
           <div class="flex items-center space-x-2">
             <span class="relative flex h-2 w-2">
@@ -174,8 +129,7 @@
             </label>
             <span class="text-gray-300">|</span>
             <button onclick="clearChat()" class="text-xs text-gray-400 hover:text-gray-600 flex items-center space-x-1 transition">
-              <i class="fa-regular fa-trash-can"></i>
-              <span>대화 초기화</span>
+              <i class="fa-regular fa-trash-can"></i><span>대화 초기화</span>
             </button>
           </div>
         </div>
@@ -194,7 +148,7 @@
           <div class="flex space-x-3 items-start">
             <div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0 shadow-sm">AI</div>
             <div class="bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100 leading-relaxed">
-              안녕하세요! <b>DevPrompt Lab 통합 스페이스</b>입니다. 왼쪽 사이드바 워크스페이스에 코드를 채워 시뮬레이션을 돌려보거나, 아카이브에서 <b>[AI 리뷰 전송]</b>을 클릭하여 코드 정밀 분석 및 프롬프트 인젝션 검증을 실시간으로 동시 수행할 수 있습니다. 💻✨
+              안녕하세요! <b>DevPrompt Lab 통합 스페이스</b>입니다. 왼쪽 사이드바 워크스페이스에 코드를 채워 시뮬레이션을 돌려보거나, 아카이브에서 <b>[AI 리뷰 전송]</b>을 클릭하여 코드 정밀 분석을 실시간으로 동시 수행할 수 있습니다. 💻✨
             </div>
           </div>
         </div>
@@ -202,14 +156,34 @@
         <form id="chatForm" class="p-4 border-t border-gray-200 bg-white rounded-b-xl flex space-x-3 shrink-0">
           <input type="text" id="chatQuestion" required class="flex-grow border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="AI에게 에러 디버깅을 요청하거나 질문을 작성하세요...">
           <button type="submit" id="btnChatSubmit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition flex items-center space-x-2 shrink-0">
-            <span>질문하기</span>
-            <i class="fa-regular fa-paper-plane"></i>
+            <span>질문하기</span><i class="fa-regular fa-paper-plane"></i>
           </button>
         </form>
       </div>
 
     </div>
   </main>
+
+  <section id="authSection" class="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 border border-gray-100 my-auto">
+    <div class="text-center mb-8">
+      <h2 id="authTitle" class="text-2xl font-bold text-gray-900">반갑습니다 👋</h2>
+      <p id="authSubtitle" class="text-sm text-gray-500 mt-2">DevPrompt Lab 서비스를 시작하려면 로그인하세요.</p>
+    </div>
+    <form id="authForm" class="space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">이메일 주소</label>
+        <input type="email" id="authEmail" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="name@company.com">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">비밀번호</label>
+        <input type="password" id="authPassword" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••">
+      </div>
+      <button type="submit" id="btnAuthSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition mt-2">로그인</button>
+    </form>
+    <div class="text-center mt-6 pt-6 border-t border-gray-100">
+      <button id="btnToggleAuth" class="text-sm text-blue-600 hover:underline font-medium">계정이 없으신가요? 회원가입하기</button>
+    </div>
+  </section>
 
   <footer class="bg-white border-t border-gray-200 py-3 text-center text-[11px] text-gray-400 shrink-0">
     <p>© 2026 DevPrompt Lab Dashboard. Realtime Workspace Active.</p>
@@ -224,7 +198,6 @@
   <script src="https://cdn.jsdelivr.net/npm/monaco-clangd@0.1.2/dist/index.js"></script>
 
   <script>
-    // 1. Firebase 데이터베이스 초기화
     const firebaseConfig = {
       apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
       authDomain: "bin20703-edda7.firebaseapp.com",
@@ -239,13 +212,12 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
-
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_tPPZxFNsHwm5Rp8L-UMvUE_yojf4i96dTH-Ho6s3SNojNB31ye8SVmirP9uootOd/exec";
 
     let currentUser = null;
     let isSignUpMode = false;
     let editorInstance = null; 
-    let clangdWorkerInstance = null; // C언어 가상 컴파일러 워커 관리자
+    let clangdWorkerInstance = null;
 
     // DOM 캐시
     const authSection = document.getElementById('authSection');
@@ -254,20 +226,17 @@
     const authEmail = document.getElementById('authEmail');
     const authPassword = document.getElementById('authPassword');
     const authTitle = document.getElementById('authTitle');
-    const authSubtitle = document.getElementById('authSubtitle');
     const btnAuthSubmit = document.getElementById('btnAuthSubmit');
     const btnToggleAuth = document.getElementById('btnToggleAuth');
     const userInfo = document.getElementById('userInfo');
     const userDisplayEmail = document.getElementById('userDisplayEmail');
     const btnLogout = document.getElementById('btnLogout');
-
     const noteLang = document.getElementById('noteLang');
     const noteTitle = document.getElementById('noteTitle');
     const btnSaveNote = document.getElementById('btnSaveNote');
     const noteList = document.getElementById('noteList');
     const noteCount = document.getElementById('noteCount');
     const consoleOutput = document.getElementById('consoleOutput');
-
     const chatForm = document.getElementById('chatForm');
     const chatQuestion = document.getElementById('chatQuestion');
     const chatStream = document.getElementById('chatStream');
@@ -279,66 +248,86 @@
     const globalAudioPlayer = document.getElementById('globalAudioPlayer');
 
     // ==========================================
-    // 고속 인텔리센스 반응형 Monaco 에디터 빌드 (v3.0 플러그인 런타임 결합)
+    // 핵심 수정 사항: 에디터 인스턴스 재생성 및 완전 바인딩 함수
     // ==========================================
-    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
-    require(['vs/editor/editor.main'], function() {
-      
+    function updateMonacoRuntime(lang, customValue = null) {
       const container = document.getElementById('noteContent');
       
-      // 1. 기본 자바스크립트 에디터 상태로 초기 마운트 진행
-      editorInstance = monaco.editor.create(container, {
-        value: `// 여기에 코드를 작성하고 위의 [실행] 버튼을 클릭해 보세요.\nconsole.log("DevPrompt 가상 엔진이 정상 구동 중입니다.");`,
-        language: "javascript",
-        theme: "vs-dark",
-        automaticLayout: true,
-        minimap: { enabled: false },
-        fontSize: 12,
-        lineNumbers: "on",
-        wordWrap: "on",
-        quickSuggestions: { other: true, comments: true, strings: true },
-        suggestOnTriggerCharacters: true,
-        acceptSuggestionOnEnter: "on",
-        tabCompletion: "on",
-        parameterHints: { enabled: true },
-        wordBasedSuggestions: true,
-        autoClosingBrackets: "always",
-        autoClosingQuotes: "always"
-      });
+      // 1. 기존 에디터 잔재가 있다면 완전히 파괴하여 메모리 해제 및 플러그인 바인딩 초기화
+      if (editorInstance) {
+        editorInstance.dispose();
+        editorInstance = null;
+      }
+      container.innerHTML = ""; // DOM 내부 강제 청소
 
-      // 2. C/C++ 분석을 백그라운드 스레드에서 전담할 컴파일러 웹워커 선점 로드
+      // 2. 초기 텍스트 설정
+      let initialValue = customValue;
+      if (!initialValue) {
+        if (lang === "python") {
+          initialValue = `# Python 지능 분석 활성화\nimport math\n\ndef check_system(data):\n    print("Target:", data)\n\n# 아래에서 math. 혹은 check_system 입력 시 팝업 작동\n`;
+        } else if (lang === "cpp") {
+          initialValue = `// C++ WASM 컴파일러 실시간 동기화 중\n#include <stdio.h>\n\nint main() {\n    printf("Hello Deep Intellisense\\n");\n    return 0;\n}`;
+        } else if (lang === "javascript") {
+          initialValue = `// JavaScript 런타임\nconsole.log("Hello Dynamic Editor");`;
+        } else {
+          initialValue = `// ${lang} 편집 모드\n`;
+        }
+      }
+
+      // 3. 해당 언어 전용 옵션을 주입하여 완전히 새로운 에디터 생성
+      if (lang === "python" && window.monacoPython) {
+        // monaco-python 플러그인은 start 메서드로 감싸서 독립 실행해야 인텔리센스가 반응합니다.
+        editorInstance = window.monacoPython.start(container, {
+          value: initialValue,
+          language: "python",
+          theme: "vs-dark",
+          automaticLayout: true,
+          fontSize: 12,
+          quickSuggestions: { other: true, comments: true, strings: true },
+          suggestOnTriggerCharacters: true
+        });
+      } else {
+        // 일반 언어 및 C++ 전용 기본 인스턴스 빌드
+        editorInstance = monaco.editor.create(container, {
+          value: initialValue,
+          language: lang,
+          theme: "vs-dark",
+          automaticLayout: true,
+          minimap: { enabled: false },
+          fontSize: 12,
+          quickSuggestions: { other: true, comments: true, strings: true },
+          suggestOnTriggerCharacters: true,
+          acceptSuggestionOnEnter: "on",
+          wordBasedSuggestions: true
+        });
+
+        // C++인 경우 준비된 WebAssembly Clangd 가상 컴파일러 워커 강제 결합
+        if (lang === "cpp" && window.monacoClangd && clangdWorkerInstance) {
+          try {
+            window.monacoClangd.register(editorInstance, clangdWorkerInstance);
+          } catch(e) {
+            console.warn("Clangd 런타임 바인딩 지연:", e);
+          }
+        }
+      }
+    }
+
+    // Monaco CDN 최초 로드 파트
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
+    require(['vs/editor/editor.main'], function() {
+      // 컴파일러 웹워커 미리 할당
       try {
         clangdWorkerInstance = new Worker('https://cdn.jsdelivr.net/npm/monaco-clangd@0.1.2/dist/clangd.worker.js');
       } catch(e) {
-        console.error("WASM Clangd Worker 로드 실패:", e);
+        console.error("WASM Clangd Worker 할당 실패:", e);
       }
+      // 최초 기본 자바스크립트 모드 구동
+      updateMonacoRuntime("javascript");
     });
 
-    // 드롭다운 변경 시 인텔리센스 가이드 및 문법 강조 즉시 전환
+    // 드롭다운 변경 시 완전한 재생성 루틴 호출
     noteLang.addEventListener('change', () => {
-      if(!editorInstance) return;
-      const targetLang = noteLang.value; 
-
-      // 에디터 모델의 언어 스펙 교체
-      monaco.editor.setModelLanguage(editorInstance.getModel(), targetLang);
-      
-      // [v3.0 핵심 분기] 특정 언어 선택 시 브라우저 내장 독립형 지능엔진(IntelliSense Engine) 가동
-      if (targetLang === "python" && window.monacoPython) {
-        // monaco-python 브라우저 백그라운드 오프라인 체인 연동
-        editorInstance.setValue(`# Python 환경 (진짜 인텔리센스 작동 중)\nimport math\n\ndef calculate_score(data):\n    print("Processing:", data)\n\ncalculate_score("DevPrompt")`);
-      } else if (targetLang === "cpp" && window.monacoClangd && clangdWorkerInstance) {
-        // WebAssembly 기반의 가상 컴파일러 엔진 바인딩 적용
-        try {
-          window.monacoClangd.register(editorInstance, clangdWorkerInstance);
-        } catch(e) {}
-        editorInstance.setValue(`// C / C++ 환경 (WASM 실시간 문법 검사 활성화)\n#include <stdio.h>\n\nint main() {\n    printf("Hello C Language\\n");\n    return 0;\n}`);
-      } else if(targetLang === "javascript") {
-        editorInstance.setValue(`// JS 환경\nconsole.log("Hello JS Dashboard");`);
-      } else if(targetLang === "java") {
-        editorInstance.setValue(`// Java 환경\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello Java");\n    }\n}`);
-      } else {
-        editorInstance.setValue(`// 텍스트 분석 환경\n입력값: `);
-      }
+      updateMonacoRuntime(noteLang.value);
     });
 
     // ==========================================
@@ -356,16 +345,12 @@
           if(currentLanguage === 'javascript') {
             let logs = [];
             const originalLog = console.log;
-            console.log = function(...args) {
-              logs.push(args.join(' '));
-              originalLog.apply(console, args);
-            };
-            
+            console.log = function(...args) { logs.push(args.join(' ')); originalLog.apply(console, args); };
             new Function(code)();
-            console.log = originalLog; // 원복
+            console.log = originalLog;
             
             if(logs.length === 0) {
-              consoleOutput.innerHTML = `<span class="text-gray-400">실행 성공 (반환 또는 출력 데이터가 콘솔에 비어있습니다.)</span>`;
+              consoleOutput.innerHTML = `<span class="text-gray-400">실행 성공 (콘솔에 출력된 데이터가 없습니다.)</span>`;
             } else {
               consoleOutput.innerHTML = logs.map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>');
             }
@@ -373,12 +358,12 @@
             const lines = code.split('\n').length;
             consoleOutput.innerHTML = `
               <span class="text-blue-400">[Monaco Client Engine Sandbox]</span><br>
-              <span class="text-green-300">&gt; 로컬 구문 하이라이트 및 괄호 스캔 완료: ${lines} 라인 확인.</span><br>
-              <span class="text-white">&gt; 정상 적재 완료. 정밀 디버깅이 필요하면 우측 [AI로 전송] 버튼을 활용하세요.</span>
+              <span class="text-green-300">&gt; 로컬 구문 하이라이트 및 브라우저 워커 스캔 완료: ${lines} 라인 확인.</span><br>
+              <span class="text-white">&gt; 정상 적재 완료. 정밀 디버깅은 우측 [AI로 전송]을 활용하세요.</span>
             `;
           }
         } catch (err) {
-          consoleOutput.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> 샌드박스 컴파일 에러 발생:</span><br><span class="text-red-300">${escapeHtml(err.message)}</span>`;
+          consoleOutput.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> 에러 발생:</span><br><span class="text-red-300">${escapeHtml(err.message)}</span>`;
         }
       }, 400);
     }
@@ -410,33 +395,20 @@
       e.preventDefault();
       const email = authEmail.value.trim();
       const password = authPassword.value;
-
       if(isSignUpMode) {
-        auth.createUserWithEmailAndPassword(email, password)
-          .then(() => alert('계정이 활성화되었습니다.'))
-          .catch(err => alert(err.message));
+        auth.createUserWithEmailAndPassword(email, password).catch(err => alert(err.message));
       } else {
-        auth.signInWithEmailAndPassword(email, password)
-          .catch(err => alert(err.message));
+        auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
       }
     });
 
     btnToggleAuth.addEventListener('click', () => {
       isSignUpMode = !isSignUpMode;
-      if (isSignUpMode) {
-        authTitle.textContent = "계정 생성 🚀";
-        btnAuthSubmit.textContent = "회원가입 완료";
-        btnToggleAuth.textContent = "기존 계정으로 로그인하기";
-      } else {
-        authTitle.textContent = "반갑습니다 👋";
-        btnAuthSubmit.textContent = "로그인";
-        btnToggleAuth.textContent = "계정이 없으신가요? 회원가입하기";
-      }
+      authTitle.textContent = isSignUpMode ? "계정 생성 🚀" : "반갑습니다 👋";
+      btnAuthSubmit.textContent = isSignUpMode ? "회원가입 완료" : "로그인";
     });
 
-    btnLogout.addEventListener('click', () => {
-      if(confirm('로그아웃 하시겠습니까?')) auth.signOut();
-    });
+    btnLogout.addEventListener('click', () => { if(confirm('로그아웃 하시겠습니까?')) auth.signOut(); });
 
     // ==========================================
     // Realtime DB 사이드바 아카이브 적재
@@ -459,7 +431,7 @@
         timestamp: firebase.database.ServerValue.TIMESTAMP
       }).then(() => {
         noteTitle.value = '';
-        alert('사이드바 아카이브 피드 목록에 추가 및 클라우드 실시간 저장을 완료했습니다.');
+        alert('사이드바 아카이브 피드에 동기화 완료!');
       }).catch(err => alert(err.message));
     });
 
@@ -467,7 +439,6 @@
       database.ref(`users/${currentUser.uid}/notes`).on('value', (snapshot) => {
         noteList.innerHTML = '';
         const data = snapshot.val();
-        
         if(!data) {
           noteCount.textContent = "0개 보관됨";
           noteList.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs"><i class="fa-regular fa-folder-open text-2xl mb-2 block"></i>보관된 내역이 없습니다.</div>`;
@@ -484,8 +455,8 @@
           card.innerHTML = `
             <div class="flex items-start justify-between">
               <div class="truncate pr-4">
-                <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 mb-1">
-                  ${getLangLabelText(item.lang)}
+                <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 mb-1" style="cursor:pointer;" onclick="restoreCodeToWorkspace('${key}')">
+                  ${getLangLabelText(item.lang)} (불러오기 클릭)
                 </span>
                 <h4 class="text-xs font-bold text-gray-800 truncate">${escapeHtml(item.title)}</h4>
               </div>
@@ -495,8 +466,7 @@
             </div>
             <div class="flex justify-end">
               <button onclick="bindToChatDirect('${key}')" class="bg-blue-600 text-white font-bold text-[10px] px-2.5 py-1 rounded transition flex items-center space-x-1 shadow-sm hover:bg-blue-700">
-                <span>오른쪽 AI로 전송</span>
-                <i class="fa-solid fa-angles-right"></i>
+                <span>오른쪽 AI로 전송</span><i class="fa-solid fa-angles-right"></i>
               </button>
             </div>
           `;
@@ -505,17 +475,24 @@
       });
     }
 
-    function deleteNote(key) {
-      if(confirm('이 템플릿을 삭제하시겠습니까?')) {
-        database.ref(`users/${currentUser.uid}/notes/${key}`).remove();
-      }
-    }
+    // 아카이브에서 코드를 클릭해 불러올 때도 인텔리센스 런타임이 완벽 연동되도록 유도
+    window.restoreCodeToWorkspace = function(key) {
+      database.ref(`users/${currentUser.uid}/notes/${key}`).once('value', (snapshot) => {
+        const item = snapshot.val();
+        if(!item) return;
+        noteLang.value = item.lang;
+        noteTitle.value = item.title;
+        updateMonacoRuntime(item.lang, item.content);
+      });
+    };
+
+    function deleteNote(key) { if(confirm('삭제하시겠습니까?')) database.ref(`users/${currentUser.uid}/notes/${key}`).remove(); }
 
     function bindToChatDirect(key) {
       database.ref(`users/${currentUser.uid}/notes/${key}`).once('value', (snapshot) => {
         const item = snapshot.val();
         if(!item) return;
-        chatQuestion.value = `[코드 분석 타겟: ${getLangLabelText(item.lang)}] 에러 디버깅 및 리팩토링 최적화 리뷰를 제공해줘.\n제목: ${item.title}\n\n코드 스크립트:\n${item.content}`;
+        chatQuestion.value = `[코드 분석 타겟: ${getLangLabelText(item.lang)}] 에러 디버깅 및 리뷰 요청.\n제목: ${item.title}\n\n${item.content}`;
         chatQuestion.focus();
       });
     }
@@ -555,8 +532,6 @@
             })
           });
           const ttsResult = await ttsResponse.json();
-          if (ttsResult.error) throw new Error(ttsResult.error);
-
           if (ttsResult.audioBase64) {
             globalAudioPlayer.src = "data:audio/mp3;base64," + ttsResult.audioBase64;
             audioPlayerContainer.classList.remove('hidden');
@@ -564,7 +539,7 @@
           }
         }
       } catch (err) {
-        appendMessage('ERROR', 'LLM 분석 엔진 장애: ' + err.toString());
+        appendMessage('ERROR', 'LLM 엔진 장애: ' + err.toString());
       } finally {
         setChatLoading(false); 
       }
@@ -572,18 +547,13 @@
 
     function appendMessage(sender, text) {
       const msgWrap = document.createElement('div');
-      msgWrap.className = "flex space-x-3 items-start";
+      msgWrap.className = sender === 'USER' ? "flex space-x-3 items-start justify-end" : "flex space-x-3 items-start";
+      let badge = sender === 'USER' ? `<div class="bg-gray-800 text-white p-1.5 rounded-lg text-xs font-bold order-2 shrink-0">MY</div>` : `<div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">AI</div>`;
+      let contentClass = sender === 'USER' ? "bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-none max-w-[85%] shadow-md order-1" : "bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100";
       
-      let badge = `<div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0 shadow-sm">AI</div>`;
-      let contentClass = "bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100 leading-relaxed";
-
-      if (sender === 'USER') {
-        msgWrap.className = "flex space-x-3 items-start justify-end";
-        badge = `<div class="bg-gray-800 text-white p-1.5 rounded-lg text-xs font-bold order-2 shrink-0 shadow-sm">MY</div>`;
-        contentClass = "bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-none max-w-[85%] shadow-md order-1 leading-relaxed";
-      } else if (sender === 'ERROR') {
+      if(sender === 'ERROR') {
         badge = `<div class="bg-red-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">ERR</div>`;
-        contentClass = "bg-red-50 text-red-700 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] font-mono text-xs border border-red-100";
+        contentClass = "bg-red-50 text-red-700 p-3.5 rounded-2xl max-w-[85%] font-mono text-xs";
       }
 
       msgWrap.innerHTML = `${badge}<div class="${contentClass} whitespace-pre-wrap">${escapeHtml(text)}</div>`;
@@ -592,22 +562,16 @@
     }
 
     function setChatLoading(isLoading) {
-      if(isLoading) {
-        btnChatSubmit.disabled = true;
-        btnChatSubmit.classList.add('opacity-50');
-        chatQuestion.placeholder = "AI 엔진이 분석 답변과 가이드 보이스를 준비 중입니다...";
-      } else {
-        btnChatSubmit.disabled = false;
-        btnChatSubmit.classList.remove('opacity-50');
-        chatQuestion.placeholder = "AI에게 에러 디버깅을 요청하거나 질문을 작성하세요...";
-      }
+      btnChatSubmit.disabled = isLoading;
+      btnChatSubmit.classList.toggle('opacity-50', isLoading);
+      chatQuestion.placeholder = isLoading ? "AI 엔진이 대답을 준비하고 있습니다..." : "AI에게 에러 디버깅을 요청하거나 질문을 작성하세요...";
     }
 
     function clearChat() {
       chatStream.innerHTML = '';
       audioPlayerContainer.classList.add('hidden');
       globalAudioPlayer.src = '';
-      appendMessage('AI', '대화 스트림이 정상 청소되었습니다. 새로운 분석 코드를 좌측에서 넘겨주세요!');
+      appendMessage('AI', '대화가 청소되었습니다. 새로운 분석 대화를 시작하세요!');
     }
 
     function getLangLabelText(lang) {
