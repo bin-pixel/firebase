@@ -90,14 +90,15 @@
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col flex-grow min-h-0">
-          <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-3">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col flex-grow min-h-[250px] overflow-hidden">
+          <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-3 shrink-0">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center space-x-1.5">
               <i class="fa-solid fa-box-archive text-gray-400"></i><span>보관소 아카이브 피드</span>
             </span>
             <span id="noteCount" class="text-[10px] bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-full">0개 보관됨</span>
           </div>
-          <div id="noteList" class="flex-grow overflow-y-auto space-y-3 pr-1"></div>
+          <div id="noteList" class="flex-grow overflow-y-auto space-y-3 pr-1 min-h-0 min-w-0">
+            </div>
         </div>
       </div>
 
@@ -229,7 +230,6 @@
     const audioPlayerContainer = document.getElementById('audioPlayerContainer');
     const globalAudioPlayer = document.getElementById('globalAudioPlayer');
 
-    // TTS 안전 절삭 유틸리티
     function getSafeTruncatedText(text, limit = 85) {
       if (text.length <= limit) return text;
       const edgeIndex = text.lastIndexOf(' ', limit);
@@ -237,7 +237,6 @@
       return text.substring(0, edgeIndex) + " ...";
     }
 
-    // Monaco 작업 영역 동적 스위칭 및 타겟 인텔리센스 구성
     function updateMonacoRuntime(lang, customValue = null) {
       const container = document.getElementById('noteContent');
       if (editorInstance) { editorInstance.dispose(); editorInstance = null; }
@@ -258,7 +257,6 @@
         value: initialValue, language: lang, theme: "vs-dark", automaticLayout: true, minimap: { enabled: false }, fontSize: 12
       });
 
-      // 미완성 커서 타겟형 GPT 스마트 어시스트 스케줄러
       editorInstance.onDidChangeModelContent(() => {
         const selectedLang = noteLang.value;
         if (selectedLang === 'javascript') return;
@@ -300,9 +298,6 @@
     require(['vs/editor/editor.main'], function() { updateMonacoRuntime("javascript"); });
     noteLang.addEventListener('change', () => { updateMonacoRuntime(noteLang.value); });
 
-    // ==========================================
-    // 3대 언어 로컬 가상 실행 컨텍스트 스페이스
-    // ==========================================
     function runNativeCode() {
       if(!editorInstance) return;
       const code = editorInstance.getValue();
@@ -344,27 +339,18 @@
         consoleOutput.innerHTML = "<span class='text-gray-500'>[JSCPP 가상 머신 엔진 가동 중...]</span><br>";
         try {
           let cppOutputBuffer = "";
-          
           const config = {
-            stdio: {
-              write: function(ch) {
-                cppOutputBuffer += ch;
-              }
-            },
+            stdio: { write: function(ch) { cppOutputBuffer += ch; } },
             unsigned_overflow: "warn"
           };
-          
           const nativeCppEngine = window.JSCPP || JSCPP;
           if (!nativeCppEngine) {
             throw new Error("브라우저 메모리에 JSCPP 엔진이 로드되지 않았습니다. CDN 주소를 확인하세요.");
           }
-
           const exitCode = nativeCppEngine.run(code, "", config);
-          
           consoleOutput.innerHTML += cppOutputBuffer.length === 0 
             ? `<span class="text-gray-400">컴파일 성공 (출력 스트림 데이터 없음)</span>`
             : `<span>${escapeHtml(cppOutputBuffer).replace(/\n/g, '<br>')}</span>`;
-            
           consoleOutput.innerHTML += `<br><span class="text-green-400 font-bold">&gt; [Process exited with code ${exitCode}]</span>`;
         } catch(err) {
           consoleOutput.innerHTML += `<span class="text-red-400 font-bold">C++ Runtime/Syntax Error:</span><br><span class="text-red-300">${escapeHtml(err.toString())}</span>`;
@@ -372,29 +358,21 @@
       }
     }
 
-    // GPT 정밀 진단 전용 스페이스
     async function runGptDiagnosis() {
       if(!editorInstance) return;
       const code = editorInstance.getValue();
       const lang = noteLang.value;
-
       consoleOutput.innerHTML = `<span class="text-yellow-400 font-bold"><i class="fa-solid fa-circle-nodes animate-pulse"></i> 코드를 분석용 GPT 컨텍스트 서버로 전송 중...</span>`;
       const diagPrompt = `[정밀 진단 요청]\n언어: ${lang}\n코드:\n${code}\n\n위 코드의 런타임 오류 가능성이나 구조적 결함을 개발자 관점에서 딱 2줄로 리팩토링 포인트만 핵심 정리해줘.`;
-      
       await executeAIEngineDirect(diagPrompt, false);
     }
 
-    // OpenAI API 통신 라우터 및 스마트 TTS 필터링
     async function executeAIEngineDirect(promptText, triggersTTS = false) {
       setChatLoading(true);
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          body: JSON.stringify({ 
-            type: 'chat', 
-            question: promptText,
-            userId: currentUser ? currentUser.uid : "guest" 
-          })
+          body: JSON.stringify({ type: 'chat', question: promptText, userId: currentUser ? currentUser.uid : "guest" })
         });
         const result = await response.json();
         if (result.error) throw new Error(result.error);
@@ -405,15 +383,9 @@
         if (triggersTTS && ttsToggle.checked) {
           const cleanText = aiAnswer.replace(/[*#`_\-]/g, '').trim(); 
           const finalAudioText = getSafeTruncatedText(cleanText, 85);
-
           const ttsResponse = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
-            body: JSON.stringify({
-              type: 'tts',
-              text: finalAudioText,
-              voice: ttsVoice.value,
-              speed: parseFloat(ttsSpeed.value)
-            })
+            body: JSON.stringify({ type: 'tts', text: finalAudioText, voice: ttsVoice.value, speed: parseFloat(ttsSpeed.value) })
           });
           const ttsResult = await ttsResponse.json();
           if (ttsResult.audioBase64) {
@@ -424,12 +396,11 @@
         }
       } catch (err) {
         appendMessage('ERROR', '엔드포인트 통신 실패: ' + err.toString());
-      } finally { // 💡 오타 수정완료 (finaly -> finally)
+      } finally {
         setChatLoading(false); 
       }
     }
 
-    // Firebase Auth 스트림 핸들러
     auth.onAuthStateChanged((user) => {
       if (user) {
         currentUser = user;
@@ -478,35 +449,58 @@
       }).then(() => { noteTitle.value = ''; alert('아카이브 피드 동기화 완료!'); }).catch(err => alert(err.message));
     });
 
+    // 💡 [수정 및 강화 벨트] 로드 스트림 에러 프리벤션 매핑
     function loadNotesStream() {
+      if (!currentUser) return;
+      
       database.ref(`users/${currentUser.uid}/notes`).on('value', (snapshot) => {
         noteList.innerHTML = '';
         const data = snapshot.val();
-        if(!data) { noteCount.textContent = "0개 보관됨"; noteList.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">보관된 내역이 없습니다.</div>`; return; }
+        
+        if(!data) { 
+          noteCount.textContent = "0개 보관됨"; 
+          noteList.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">보관된 내역이 없습니다.</div>`; 
+          return; 
+        }
 
         const keys = Object.keys(data).reverse(); 
         noteCount.textContent = `${keys.length}개 보관됨`;
+        
         keys.forEach(key => {
           const item = data[key];
+          // 방어 코드: 하위 속성이 손상되었거나 누락된 데이터 예외 필터링
+          if (!item || !item.lang || !item.title) return; 
+
           const card = document.createElement('div');
-          card.className = "bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-blue-400 transition space-y-2 relative";
+          // 💡 Tailwind 구조 가시성 확보용 테두리 및 배경 패딩 조정
+          card.className = "bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-white shadow-sm transition duration-150 space-y-2 block w-full";
           card.innerHTML = `
-            <div class="flex items-start justify-between">
-              <div class="truncate pr-4">
-                <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 mb-1 cursor-pointer" onclick="restoreCodeToWorkspace('${key}')">
-                  ${item.lang.toUpperCase()} (불러오기)
+            <div class="flex items-start justify-between w-full">
+              <div class="truncate pr-4 flex-grow">
+                <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 mb-1 cursor-pointer hover:bg-blue-200 transition" onclick="restoreCodeToWorkspace('${key}')">
+                  ${escapeHtml(item.lang.toUpperCase())} (불러오기)
                 </span>
-                <h4 class="text-xs font-bold text-gray-800 truncate">${escapeHtml(item.title)}</h4>
+                <h4 class="text-xs font-bold text-gray-800 truncate block">${escapeHtml(item.title)}</h4>
               </div>
-              <button onclick="deleteNote('${key}')" class="text-gray-400 hover:text-red-500 text-xs transition"><i class="fa-regular fa-trash-can"></i></button>
+              <button onclick="deleteNote('${key}')" class="text-gray-400 hover:text-red-500 text-xs transition p-1 shrink-0"><i class="fa-regular fa-trash-can"></i></button>
             </div>
           `;
           noteList.appendChild(card);
         });
+
+        // 💡 만약 데이터는 있는데 조건에 걸려 카드가 하나도 안 달렸을 경우 가드
+        if (noteList.children.length === 0 && keys.length > 0) {
+          noteList.innerHTML = `<div class="text-center py-8 text-yellow-600 text-xs bg-yellow-50 rounded-lg">데이터 구조 검증 실패 (또는 규칙 제한됨)</div>`;
+        }
+      }, (error) => {
+        // 💡 Realtime Database 규칙 권한 오류 발생 시 피드 백업 로그 출력
+        console.error("Firebase Read Error:", error);
+        noteList.innerHTML = `<div class="text-center py-8 text-red-500 text-xs bg-red-50 rounded-lg">보안 규칙 차단: 읽기 권한을 확인하세요.</div>`;
       });
     }
 
     window.restoreCodeToWorkspace = function(key) {
+      if (!currentUser) return;
       database.ref(`users/${currentUser.uid}/notes/${key}`).once('value', (snapshot) => {
         const item = snapshot.val(); if(!item) return;
         noteLang.value = item.lang; noteTitle.value = item.title;
@@ -514,13 +508,15 @@
       });
     };
 
-    function deleteNote(key) { if(confirm('삭제하시겠습니까?')) database.ref(`users/${currentUser.uid}/notes/${key}`).remove(); }
+    function deleteNote(key) { 
+      if(!currentUser) return;
+      if(confirm('삭제하시겠습니까?')) database.ref(`users/${currentUser.uid}/notes/${key}`).remove(); 
+    }
 
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const question = chatQuestion.value.trim();
       if(!question) return;
-
       appendMessage('USER', question);
       chatQuestion.value = '';
       await executeAIEngineDirect(question, true);
@@ -547,7 +543,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      // 💡 토글 매핑 고도화
       btnToggleAuth.textContent = "계정이 없으신가요? 회원가입하기";
     });
 
@@ -559,7 +554,10 @@
     }
 
     function clearConsole() { consoleOutput.innerHTML = `<span class="text-gray-500">// 콘솔 청소 완료.</span>`; }
-    function escapeHtml(text) { return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+    function escapeHtml(text) { 
+      if(!text) return "";
+      return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
+    }
   </script>
 </body>
 </html>
