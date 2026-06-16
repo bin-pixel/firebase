@@ -14,7 +14,6 @@
   
   <style>
     .monaco-editor, .monaco-editor .overflow-guard { border-radius: 0.5rem; }
-    /* 스크롤바 커스텀 스타일 */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
@@ -72,13 +71,17 @@
               <div class="flex items-center justify-between text-gray-400 border-b border-gray-800 pb-1.5">
                 <span class="flex items-center space-x-1"><i class="fa-solid fa-play text-green-500 text-[9px]"></i> <b>REALTIME INTERPRETER CONSOLE</b></span>
                 <div class="flex space-x-1.5">
-                  <button onclick="runNativeCode()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">실행</button>
-                  <button onclick="runGptDiagnosis()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">GPT 진단</button>
+                  <button onclick="runNativeCode()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">
+                    <i class="fa-solid fa-play mr-0.5"></i> 코드 실행
+                  </button>
+                  <button onclick="runGptDiagnosis()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2 py-0.5 rounded text-[10px] transition">
+                    <i class="fa-solid fa-user-doctor mr-0.5"></i> GPT 정밀진단
+                  </button>
                   <button onclick="clearConsole()" class="bg-gray-800 hover:bg-gray-700 px-1.5 py-0.5 rounded text-[10px] transition">비우기</button>
                 </div>
               </div>
               <div id="consoleOutput" class="h-16 overflow-y-auto space-y-1 text-green-400">
-                <span class="text-gray-500">// 준비 완료.</span>
+                <span class="text-gray-500">// 준비 완료. C++ 코드도 변수 할당, 루프 연산이 브라우저에서 진짜 실행됩니다.</span>
               </div>
             </div>
 
@@ -96,7 +99,7 @@
             <span id="noteCount" class="text-[10px] bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-full">0개 보관됨</span>
           </div>
           
-          <div id="noteList" class="flex-grow overflow-y-auto pr-1 space-y-2.5 min-h-0 handle-scroll-zone">
+          <div id="noteList" class="flex-grow overflow-y-auto space-y-3 pr-1 min-h-0">
             </div>
         </div>
       </div>
@@ -110,22 +113,35 @@
           <div class="flex items-center space-x-3">
             <label class="flex items-center space-x-1 text-xs text-gray-500 cursor-pointer">
               <input type="checkbox" id="ttsToggle" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-              <span>답변 낭독(TTS)</span>
+              <span>대화창 답변 낭독(TTS) 켜기</span>
             </label>
             <span class="text-gray-300">|</span>
             <button onclick="clearChat()" class="text-xs text-gray-400 hover:text-gray-600 flex items-center space-x-1 transition">
-              <i class="fa-regular fa-trash-can"></i><span>초기화</span>
+              <i class="fa-regular fa-trash-can"></i><span>대화 초기화</span>
             </button>
           </div>
         </div>
 
-        <div class="hidden flex-wrap gap-4 px-4 py-2 bg-blue-50 border-b border-gray-100 text-xs text-gray-600" id="advancedAudioSettings">
-          <select id="ttsVoice" class="border border-gray-300 rounded p-1 bg-white"><option value="alloy" selected>Alloy</option></select>
-          <select id="ttsSpeed" class="border border-gray-300 rounded p-1 bg-white"><option value="1.0" selected>1.0x</option></select>
+        <div class="flex flex-wrap gap-4 px-4 py-2 bg-blue-50 border-b border-gray-100 text-xs text-gray-600 shrink-0" id="advancedAudioSettings">
+          <div class="flex items-center space-x-1">
+            <span>목소리 종류:</span>
+            <select id="ttsVoice" class="border border-gray-300 rounded p-0.5 bg-white font-medium outline-none">
+              <option value="alloy" selected>Alloy</option>
+              <option value="echo">Echo</option>
+            </select>
+          </div>
+          <div class="flex items-center space-x-1">
+            <span>배속 재생:</span>
+            <select id="ttsSpeed" class="border border-gray-300 rounded p-0.5 bg-white font-medium outline-none">
+              <option value="1.0" selected>1.0x</option>
+              <option value="1.2">1.2x</option>
+              <option value="1.5">1.5x</option>
+            </select>
+          </div>
         </div>
 
         <div id="audioPlayerContainer" class="hidden px-4 py-2 bg-blue-50 border-b border-blue-100 shrink-0 flex items-center justify-between text-xs">
-          <span class="font-medium text-blue-700"><i class="fa-solid fa-volume-high animate-bounce mr-1"></i> 답변 요약 낭독 중...</span>
+          <span class="font-medium text-blue-700"><i class="fa-solid fa-volume-high animate-bounce mr-1"></i> 답변 안전 요약 낭독 중...</span>
           <audio id="globalAudioPlayer" controls class="h-6 w-48"></audio>
         </div>
 
@@ -133,7 +149,8 @@
           <div class="flex space-x-3 items-start">
             <div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">AI</div>
             <div class="bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100">
-              반갑습니다! 데이터가 많이 저장되어도 이제 좌측 피드에 독립 스크롤바가 작동합니다.
+              반갑습니다! **DevPrompt Lab v3.5 오픈소스 인터프리터 팩** 공간입니다.<br>
+              이제 Python은 Skulpt 가상 머신이, C/C++은 **JSCPP 가상 엔진**이 실제 해석을 브라우저에서 수행합니다.
             </div>
           </div>
         </div>
@@ -141,7 +158,7 @@
         <form id="chatForm" class="p-4 border-t border-gray-200 bg-white rounded-b-xl flex space-x-3 shrink-0">
           <input type="text" id="chatQuestion" required class="flex-grow border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="AI에게 질문을 작성하세요...">
           <button type="submit" id="btnChatSubmit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-4 transition flex items-center space-x-2 shrink-0">
-            <span>질문</span><i class="fa-regular fa-paper-plane"></i>
+            <span>질문하기</span><i class="fa-regular fa-paper-plane"></i>
           </button>
         </form>
       </div>
@@ -156,11 +173,11 @@
     <form id="authForm" class="space-y-4">
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">이메일 주소</label>
-        <input type="email" id="authEmail" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none">
+        <input type="email" id="authEmail" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none" placeholder="name@company.com">
       </div>
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">비밀번호</label>
-        <input type="password" id="authPassword" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none">
+        <input type="password" id="authPassword" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none" placeholder="••••••••">
       </div>
       <button type="submit" id="btnAuthSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition">로그인</button>
     </form>
@@ -170,7 +187,7 @@
   </section>
 
   <footer class="bg-white border-t border-gray-200 py-2.5 text-center text-[11px] text-gray-400 shrink-0">
-    <p>© 2026 DevPrompt Lab Dashboard. All rights reserved.</p>
+    <p>© 2026 DevPrompt Lab Dashboard. High-Performance Virtual Interpreter Environment.</p>
   </footer>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -193,7 +210,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNj9ixIbGgfn8O_Mhfh-nOUL_fqFP7rSLrtELCwRs6dN5J0R9r12rVTMoi2_LjrwTfsQ/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjF9OD7LxfLX0uIVnsVoG3zDvKNXY9rK7d_hvhMgWH_7u6JF9C0k0Hzx1XgZDKHYz0/exec";
 
     let currentUser = null;
     let isSignUpMode = false;
@@ -229,7 +246,9 @@
 
     function getSafeTruncatedText(text, limit = 85) {
       if (text.length <= limit) return text;
-      return text.substring(0, limit) + "...";
+      const edgeIndex = text.lastIndexOf(' ', limit);
+      if (edgeIndex === -1) return text.substring(0, limit) + "...";
+      return text.substring(0, edgeIndex) + " ...";
     }
 
     function updateMonacoRuntime(lang, customValue = null) {
@@ -239,13 +258,52 @@
 
       let initialValue = customValue;
       if (!initialValue) {
-        if (lang === "python") initialValue = `print("Hello Python")`;
-        else if (lang === "cpp") initialValue = `#include <iostream>\nusing namespace std;\nint main() { cout << "Hello C++" << endl; return 0; }`;
-        else initialValue = `console.log("Ready");`;
+        if (lang === "python") {
+          initialValue = `import math\n\npri`;
+        } else if (lang === "cpp") {
+          initialValue = `#include <iostream>\nusing namespace std;\n\nint main() {\n    int sum = 0;\n    for(int i=1; i<=10; i++) {\n        sum += i;\n    }\n    cout << "1부터 10까지의 합: " << sum << endl;\n    return 0;\n}`;
+        } else {
+          initialValue = `console.log("Ready");`;
+        }
       }
 
       editorInstance = monaco.editor.create(container, {
         value: initialValue, language: lang, theme: "vs-dark", automaticLayout: true, minimap: { enabled: false }, fontSize: 12
+      });
+
+      editorInstance.onDidChangeModelContent(() => {
+        const selectedLang = noteLang.value;
+        if (selectedLang === 'javascript') return;
+
+        clearTimeout(gptIntellisenseTimer);
+        gptIntellisenseTimer = setTimeout(async () => {
+          const model = editorInstance.getModel();
+          const position = editorInstance.getPosition();
+          if(!model || !position) return;
+
+          const textBeforeCursor = model.getValueInRange({ startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column });
+          const textAfterCursor = model.getValueInRange({ startLineNumber: position.lineNumber, startColumn: position.column, endLineNumber: model.getLineCount(), endColumn: model.getLineMaxColumn(model.getLineCount()) });
+
+          if (textBeforeCursor.trim().length < 2) return;
+
+          consoleOutput.innerHTML = `<span class="text-blue-400 text-[10px]"><i class="fa-solid fa-spinner animate-spin"></i> 실시간 커서 인텔리센스 매핑 중...</span>`;
+
+          try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+              method: 'POST',
+              body: JSON.stringify({
+                type: 'chat',
+                question: `아래는 개발자가 작성 중인 ${selectedLang} 코드이다. [CURSOR] 위치의 문맥 단어를 분석하여 완성형 문법 구조를 제안해라. 부연설명 없이 오직 즉시 교체해 넣을 제안 코드만 1~2줄 이내로 깔끔하게 반환할 것.\n\n${textBeforeCursor}[CURSOR]${textAfterCursor}`
+              })
+            });
+            const result = await response.json();
+            if (result.answer) {
+              consoleOutput.innerHTML = `<span class="text-purple-400 font-bold">[GPT IntelliSense 추천]</span><br><span class="text-white">${escapeHtml(result.answer)}</span>`;
+            }
+          } catch(e) {
+            consoleOutput.innerHTML = `<span class="text-gray-500">// 가상 어시스턴트 대기 중</span>`;
+          }
+        }, 1300);
       });
     }
 
@@ -263,47 +321,106 @@
         try {
           let logs = [];
           const originalLog = console.log;
-          console.log = function(...args) { logs.push(args.join(' ')); };
+          console.log = function(...args) { logs.push(args.join(' ')); originalLog.apply(console, args); };
           new Function(code)();
           console.log = originalLog;
-          consoleOutput.innerHTML = logs.map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>');
+          consoleOutput.innerHTML = logs.length === 0 ? `<span class="text-gray-400">성공 (출력값 없음)</span>` : logs.map(l => `<span>&gt; ${escapeHtml(l)}</span>`).join('<br>');
         } catch(err) {
-          consoleOutput.innerHTML = `<span class="text-red-400">Error: ${escapeHtml(err.message)}</span>`;
+          consoleOutput.innerHTML = `<span class="text-red-400 font-bold">JS Runtime Error:</span> ${escapeHtml(err.message)}`;
         }
-      } else if (lang === "python") {
-        Sk.configure({ output: function(text) { const span = document.createElement('span'); span.textContent = text; consoleOutput.appendChild(span); } });
-        Sk.misceval.asyncToPromise(function() { return Sk.importMainWithBody("<stdin>", false, code, true); });
-      } else if (lang === "cpp") {
+      } 
+      else if (lang === "python") {
+        Sk.configure({
+          output: function(text) {
+            const span = document.createElement('span');
+            span.textContent = text;
+            consoleOutput.appendChild(span);
+          },
+          read: function(x) {
+            if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) throw "File not found: '" + x + "'";
+            return Sk.builtinFiles["files"][x];
+          }
+        });
+        consoleOutput.innerHTML = "<span class='text-gray-500'>[Python Skulpt VM 가동]</span><br>";
+        Sk.misceval.asyncToPromise(function() {
+          return Sk.importMainWithBody("<stdin>", false, code, true);
+        }).catch(function(err) {
+          consoleOutput.innerHTML += `<span class="text-red-400 font-bold">Python Runtime Error:</span> ${escapeHtml(err.toString())}`;
+        });
+      } 
+      else if (lang === "cpp") {
+        consoleOutput.innerHTML = "<span class='text-gray-500'>[JSCPP 가상 머신 엔진 가동 중...]</span><br>";
         try {
-          let buf = "";
+          let cppOutputBuffer = "";
+          const config = {
+            stdio: { write: function(ch) { cppOutputBuffer += ch; } },
+            unsigned_overflow: "warn"
+          };
           const nativeCppEngine = window.JSCPP || JSCPP;
-          nativeCppEngine.run(code, "", { stdio: { write: function(ch) { buf += ch; } } });
-          consoleOutput.innerHTML = `<span>${escapeHtml(buf).replace(/\n/g, '<br>')}</span>`;
+          if (!nativeCppEngine) throw new Error("브라우저 메모리에 JSCPP 엔진이 로드되지 않았습니다.");
+
+          const exitCode = nativeCppEngine.run(code, "", config);
+          consoleOutput.innerHTML += cppOutputBuffer.length === 0 
+            ? `<span class="text-gray-400">컴파일 성공 (출력 스트림 데이터 없음)</span>`
+            : `<span>${escapeHtml(cppOutputBuffer).replace(/\n/g, '<br>')}</span>`;
+            
+          consoleOutput.innerHTML += `<br><span class="text-green-400 font-bold">&gt; [Process exited with code ${exitCode}]</span>`;
         } catch(err) {
-          consoleOutput.innerHTML = `<span class="text-red-400">${escapeHtml(err.toString())}</span>`;
+          consoleOutput.innerHTML += `<span class="text-red-400 font-bold">C++ Runtime/Syntax Error:</span><br><span class="text-red-300">${escapeHtml(err.toString())}</span>`;
         }
       }
     }
 
     async function runGptDiagnosis() {
       if(!editorInstance) return;
-      consoleOutput.innerHTML = `<span>진단 중...</span>`;
-      await executeAIEngineDirect(`코드 진단요청:\n${editorInstance.getValue()}`, false);
+      const code = editorInstance.getValue();
+      const lang = noteLang.value;
+      consoleOutput.innerHTML = `<span class="text-yellow-400 font-bold"><i class="fa-solid fa-circle-nodes animate-pulse"></i> 코드를 분석용 GPT 컨텍스트 서버로 전송 중...</span>`;
+      const diagPrompt = `[정밀 진단 요청]\n언어: ${lang}\n코드:\n${code}\n\n위 코드의 런타임 오류 가능성이나 구조적 결함을 개발자 관점에서 딱 2줄로 리팩토링 포인트만 핵심 정리해줘.`;
+      
+      // 원래 유저 진단 로직 복구 (진단 요청은 음성 낭독 강제 생략)
+      await executeAIEngineDirect(diagPrompt, false);
     }
 
+    // OpenAI API 및 [핵심] 오리지널 TTS 오디오 버퍼 핸들러 완벽 매핑
     async function executeAIEngineDirect(promptText, triggersTTS = false) {
-      btnChatSubmit.disabled = true;
+      setChatLoading(true);
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          body: JSON.stringify({ type: 'chat', question: promptText, userId: currentUser ? currentUser.uid : "guest" })
+          body: JSON.stringify({ type: 'chat', question: promptText })
         });
         const result = await response.json();
-        appendMessage('AI', result.answer);
+        if (result.error) throw new Error(result.error);
+        
+        const aiAnswer = result.answer;
+        appendMessage('AI', aiAnswer); 
+
+        // 대화창 질문하기 시 triggersTTS 가 true 로 진입함에 따른 제어
+        if (triggersTTS && ttsToggle.checked) {
+          const cleanText = aiAnswer.replace(/[*#`_\-]/g, '').trim(); 
+          const finalAudioText = getSafeTruncatedText(cleanText, 85);
+
+          const ttsResponse = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+              type: 'tts',
+              text: finalAudioText,
+              voice: ttsVoice.value,
+              speed: parseFloat(ttsSpeed.value)
+            })
+          });
+          const ttsResult = await ttsResponse.json();
+          if (ttsResult.audioBase64) {
+            globalAudioPlayer.src = "data:audio/mp3;base64," + ttsResult.audioBase64;
+            audioPlayerContainer.classList.remove('hidden');
+            globalAudioPlayer.play();
+          }
+        }
       } catch (err) {
-        appendMessage('ERROR', err.toString());
+        appendMessage('ERROR', '엔드포인트 통신 실패: ' + err.toString());
       } finally {
-        btnChatSubmit.disabled = false;
+        setChatLoading(false); 
       }
     }
 
@@ -325,8 +442,10 @@
 
     authForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      if(isSignUpMode) auth.createUserWithEmailAndPassword(authEmail.value, authPassword.value);
-      else auth.signInWithEmailAndPassword(authEmail.value, authPassword.value);
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
+      if(isSignUpMode) { auth.createUserWithEmailAndPassword(email, password).catch(err => alert(err.message)); }
+      else { auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message)); }
     });
 
     btnToggleAuth.addEventListener('click', () => {
@@ -335,40 +454,41 @@
       btnAuthSubmit.textContent = isSignUpMode ? "회원가입 완료" : "로그인";
     });
 
-    btnLogout.addEventListener('click', () => { auth.signOut(); });
+    btnLogout.addEventListener('click', () => { if(confirm('로그아웃 하시겠습니까?')) auth.signOut(); });
 
     btnSaveNote.addEventListener('click', () => {
-      if(!currentUser || !noteTitle.value) return;
+      if(!currentUser) return;
+      const lang = noteLang.value;
+      const title = noteTitle.value.trim();
+      const content = editorInstance ? editorInstance.getValue().trim() : "";
+      if(!title || !content) { alert('워크스페이스를 채워주세요.'); return; }
+
       database.ref(`users/${currentUser.uid}/notes`).push({
-        lang: noteLang.value, title: noteTitle.value, content: editorInstance.getValue(), timestamp: firebase.database.ServerValue.TIMESTAMP
-      }).then(() => { noteTitle.value = ''; });
+        lang: lang, title: title, content: content, timestamp: firebase.database.ServerValue.TIMESTAMP
+      }).then(() => { noteTitle.value = ''; alert('아카이브 피드 동기화 완료!'); }).catch(err => alert(err.message));
     });
 
     function loadNotesStream() {
-      if (!currentUser) return;
       database.ref(`users/${currentUser.uid}/notes`).on('value', (snapshot) => {
         noteList.innerHTML = '';
         const data = snapshot.val();
-        if(!data) { noteCount.textContent = "0개 보관됨"; return; }
+        if(!data) { noteCount.textContent = "0개 보관됨"; noteList.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">보관된 내역이 없습니다.</div>`; return; }
 
-        const keys = Object.keys(data).reverse();
+        const keys = Object.keys(data).reverse(); 
         noteCount.textContent = `${keys.length}개 보관됨`;
-        
         keys.forEach(key => {
           const item = data[key];
-          if (!item || !item.lang || !item.title) return;
-
           const card = document.createElement('div');
-          card.className = "bg-gray-50 p-2.5 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-white shadow-sm transition block w-full shrink-0";
+          card.className = "bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-blue-400 transition space-y-2 relative shrink-0";
           card.innerHTML = `
-            <div class="flex items-start justify-between w-full">
-              <div class="truncate pr-2 flex-grow">
+            <div class="flex items-start justify-between">
+              <div class="truncate pr-4">
                 <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 mb-1 cursor-pointer" onclick="restoreCodeToWorkspace('${key}')">
-                  ${escapeHtml(item.lang.toUpperCase())}
+                  ${item.lang.toUpperCase()} (불러오기)
                 </span>
-                <h4 class="text-xs font-bold text-gray-800 truncate block">${escapeHtml(item.title)}</h4>
+                <h4 class="text-xs font-bold text-gray-800 truncate">${escapeHtml(item.title)}</h4>
               </div>
-              <button onclick="deleteNote('${key}')" class="text-gray-400 hover:text-red-500 text-xs transition p-1"><i class="fa-regular fa-trash-can"></i></button>
+              <button onclick="deleteNote('${key}')" class="text-gray-400 hover:text-red-500 text-xs transition"><i class="fa-regular fa-trash-can"></i></button>
             </div>
           `;
           noteList.appendChild(card);
@@ -384,27 +504,47 @@
       });
     };
 
-    window.deleteNote = function(key) { if(confirm('삭제하시겠습니까?')) database.ref(`users/${currentUser.uid}/notes/${key}`).remove(); };
+    function deleteNote(key) { if(confirm('삭제하시겠습니까?')) database.ref(`users/${currentUser.uid}/notes/${key}`).remove(); }
 
-    chatForm.addEventListener('submit', (e) => {
+    chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const q = chatQuestion.value.trim(); if(!q) return;
-      appendMessage('USER', q); chatQuestion.value = '';
-      executeAIEngineDirect(q, false);
+      const question = chatQuestion.value.trim();
+      if(!question) return;
+
+      appendMessage('USER', question);
+      chatQuestion.value = '';
+      await executeAIEngineDirect(question, true); // 오리지널 코드 기반 true 트리거 정상화
     });
 
     function appendMessage(sender, text) {
       const msgWrap = document.createElement('div');
       msgWrap.className = sender === 'USER' ? "flex space-x-3 items-start justify-end" : "flex space-x-3 items-start";
-      let contentClass = sender === 'USER' ? "bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none max-w-[85%]" : "bg-white text-gray-800 p-3 rounded-2xl rounded-tl-none max-w-[85%] border border-gray-100";
-      msgWrap.innerHTML = `<div class="${contentClass}">${escapeHtml(text)}</div>`;
+      let badge = sender === 'USER' ? `<div class="bg-gray-800 text-white p-1.5 rounded-lg text-xs font-bold order-2 shrink-0">MY</div>` : `<div class="bg-blue-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">AI</div>`;
+      let contentClass = sender === 'USER' ? "bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-none max-w-[85%] shadow-md order-1" : "bg-white text-gray-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-gray-100";
+      
+      if(sender === 'ERROR') {
+        badge = `<div class="bg-red-600 text-white p-1.5 rounded-lg text-xs font-bold shrink-0">ERR</div>`;
+        contentClass = "bg-red-50 text-red-700 p-3.5 rounded-2xl max-w-[85%] font-mono text-xs";
+      }
+      msgWrap.innerHTML = `${badge}<div class="${contentClass} whitespace-pre-wrap">${escapeHtml(text)}</div>`;
       chatStream.appendChild(msgWrap);
-      chatStream.scrollTop = chatStream.scrollHeight;
+      chatStream.scrollTop = chatStream.scrollHeight; 
     }
 
-    function clearConsole() { consoleOutput.innerHTML = `<span>// 콘솔 비움</span>`; }
-    function clearChat() { chatStream.innerHTML = ''; }
-    function escapeHtml(text) { if(!text) return ""; return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+    function setChatLoading(isLoading) {
+      btnChatSubmit.disabled = isLoading;
+      btnChatSubmit.classList.toggle('opacity-50', isLoading);
+    }
+
+    function clearChat() {
+      chatStream.innerHTML = '';
+      audioPlayerContainer.classList.add('hidden');
+      globalAudioPlayer.src = '';
+      appendMessage('AI', '대화 세션이 리셋되었습니다.');
+    }
+
+    function clearConsole() { consoleOutput.innerHTML = `<span class="text-gray-500">// 콘솔 청소 완료.</span>`; }
+    function escapeHtml(text) { return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
   </script>
 </body>
 </html>
