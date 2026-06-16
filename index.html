@@ -281,7 +281,7 @@
               method: 'POST',
               body: JSON.stringify({
                 type: 'chat',
-                userId: currentUser ? currentUser.uid : "guest", // 💡 인텔리센스 호출 시에도 안정적인 세션 식별자 매핑 추가
+                userId: currentUser ? currentUser.uid : "guest", 
                 question: `아래는 개발자가 작성 중인 ${selectedLang} 코드이다. [CURSOR] 위치의 문맥 단어를 분석하여 완성형 문법 구조를 제안해라. 부연설명 없이 오직 즉시 교체해 넣을 제안 코드만 1~2줄 이내로 깔끔하게 반환할 것.\n\n${textBeforeCursor}[CURSOR]${textAfterCursor}`
               })
             });
@@ -345,7 +345,6 @@
         try {
           let cppOutputBuffer = "";
           
-          // 공식 문서 스펙 기준 입출력(stdio) 감쇄 인터페이스 설정
           const config = {
             stdio: {
               write: function(ch) {
@@ -355,13 +354,11 @@
             unsigned_overflow: "warn"
           };
           
-          // 브라우저 윈도우 전역에 선언된 정식 JSCPP 인스턴스 검증
           const nativeCppEngine = window.JSCPP || JSCPP;
           if (!nativeCppEngine) {
             throw new Error("브라우저 메모리에 JSCPP 엔진이 로드되지 않았습니다. CDN 주소를 확인하세요.");
           }
 
-          // 메인 API 호출 실행
           const exitCode = nativeCppEngine.run(code, "", config);
           
           consoleOutput.innerHTML += cppOutputBuffer.length === 0 
@@ -396,7 +393,7 @@
           body: JSON.stringify({ 
             type: 'chat', 
             question: promptText,
-            userId: currentUser ? currentUser.uid : "guest" // 💡 여기에 고유 유저 ID 속성을 탑재하여 앱스 스크립트로 전달
+            userId: currentUser ? currentUser.uid : "guest" 
           })
         });
         const result = await response.json();
@@ -427,7 +424,7 @@
         }
       } catch (err) {
         appendMessage('ERROR', '엔드포인트 통신 실패: ' + err.toString());
-      } finaly {
+      } finally { // 💡 오타 수정완료 (finaly -> finally)
         setChatLoading(false); 
       }
     }
@@ -453,14 +450,18 @@
       e.preventDefault();
       const email = authEmail.value.trim();
       const password = authPassword.value;
-      if(isSignUpMode) { auth.createUserWithEmailAndPassword(email, password).catch(err => alert(err.message)); }
-      else { auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message)); }
+      if(isSignUpMode) { 
+        auth.createUserWithEmailAndPassword(email, password).catch(err => alert(err.message)); 
+      } else { 
+        auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message)); 
+      }
     });
 
     btnToggleAuth.addEventListener('click', () => {
       isSignUpMode = !isSignUpMode;
       authTitle.textContent = isSignUpMode ? "계정 생성 🚀" : "반갑습니다 👋";
       btnAuthSubmit.textContent = isSignUpMode ? "회원가입 완료" : "로그인";
+      btnToggleAuth.textContent = isSignUpMode ? "이미 계정이 있으신가요? 로그인하기" : "계정이 없으신가요? 회원가입하기";
     });
 
     btnLogout.addEventListener('click', () => { if(confirm('로그아웃 하시겠습니까?')) auth.signOut(); });
@@ -544,6 +545,11 @@
       btnChatSubmit.disabled = isLoading;
       btnChatSubmit.classList.toggle('opacity-50', isLoading);
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 💡 토글 매핑 고도화
+      btnToggleAuth.textContent = "계정이 없으신가요? 회원가입하기";
+    });
 
     function clearChat() {
       chatStream.innerHTML = '';
