@@ -194,7 +194,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2nzGrLkNay-ilQBRV07v3ZqvjPZJ35uec8vE3aLAjEYo9Lsoi3njN_QELDL03eiL2/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNj9ixIbGgfn8O_Mhfh-nOUL_fqFP7rSLrtELCwRs6dN5J0R9r12rVTMoi2_LjrwTfsQ/exec";
 
     let currentUser = null;
     let isSignUpMode = false;
@@ -281,6 +281,7 @@
               method: 'POST',
               body: JSON.stringify({
                 type: 'chat',
+                userId: currentUser ? currentUser.uid : "guest", // 💡 인텔리센스 호출 시에도 안정적인 세션 식별자 매핑 추가
                 question: `아래는 개발자가 작성 중인 ${selectedLang} 코드이다. [CURSOR] 위치의 문맥 단어를 분석하여 완성형 문법 구조를 제안해라. 부연설명 없이 오직 즉시 교체해 넣을 제안 코드만 1~2줄 이내로 깔끔하게 반환할 것.\n\n${textBeforeCursor}[CURSOR]${textAfterCursor}`
               })
             });
@@ -392,7 +393,11 @@
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          body: JSON.stringify({ type: 'chat', question: promptText })
+          body: JSON.stringify({ 
+            type: 'chat', 
+            question: promptText,
+            userId: currentUser ? currentUser.uid : "guest" // 💡 여기에 고유 유저 ID 속성을 탑재하여 앱스 스크립트로 전달
+          })
         });
         const result = await response.json();
         if (result.error) throw new Error(result.error);
@@ -422,7 +427,7 @@
         }
       } catch (err) {
         appendMessage('ERROR', '엔드포인트 통신 실패: ' + err.toString());
-      } finally {
+      } finaly {
         setChatLoading(false); 
       }
     }
